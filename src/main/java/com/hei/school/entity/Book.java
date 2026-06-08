@@ -3,7 +3,6 @@ package com.hei.school.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.tomcat.jni.Library;
 
 import java.math.BigDecimal;
 

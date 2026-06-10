@@ -15,11 +15,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Optional<Book> findByIsbn(String isbn);
 
-    List<Book> findByLibraryId(Long libraryId);
+    List<Book> findByLibrary_LibraryId(Long libraryId);
 
     List<Book> findByPublicationYear(Integer year);
 
     List<Book> findAllByOrderByTitleAsc();
 
-    List<Book> findAllByOrderByBasePriceAsc();
+    List<Book> findAllByOrderByPriceAsc();
 }

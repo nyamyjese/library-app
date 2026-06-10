@@ -37,7 +37,7 @@ public class BookService {
     }
 
     public List<Book> getByLibraryId(Long libraryId) {
-        return bookRepository.findByLibraryId(libraryId);
+        return bookRepository.findByLibrary_LibraryId(libraryId);
     }
 
     public List<Book> getByPublicationYear(Integer year) {
@@ -49,7 +49,7 @@ public class BookService {
     }
 
     public List<Book> getAllSortedByPrice(){
-        return bookRepository.findAllByOrderByBasePriceAsc();
+        return bookRepository.findAllByOrderByPriceAsc();
     }
 
     public Book create(BookDTO  bookDTO) {

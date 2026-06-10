@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/librairies")
+@RequestMapping("/api/libraries")
 public class LibraryController {
     @Autowired
     private LibraryService libraryService;

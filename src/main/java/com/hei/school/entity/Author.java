@@ -1,6 +1,9 @@
 package com.hei.school.entity;
 
+import java.time.Instant;
 import java.util.UUID;
+
+import com.hei.school.entity.enums.Sexe;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,4 +27,13 @@ public class Author {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexe", nullable = true)
+    private Sexe sexe = Sexe.M;
+
+    @Column(name = "create_date", nullable = false)
+    private Instant createdDate;
+
+    @Column(name = "update_date", nullable = false)
+    private Instant updatedDate;
 }

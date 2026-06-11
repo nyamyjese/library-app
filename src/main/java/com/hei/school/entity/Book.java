@@ -1,14 +1,9 @@
-package com.hei.school.models;
+package com.hei.school.entity;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity

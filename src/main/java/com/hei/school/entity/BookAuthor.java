@@ -3,7 +3,6 @@ package com.hei.school.entity;
 import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.*;
-import com.hei.school.models.Author;
 
 @Entity
 @Table(name = "book_authors", uniqueConstraints = @UniqueConstraint(columnNames = {"book_id", "author_id"}))

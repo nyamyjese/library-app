@@ -1,6 +1,6 @@
 package com.hei.school.dto.response;
 
-import java.util.UUID;
+import java.util.*;
 
-public record AuthorResponse(UUID id_author, String firstName, String lastName) {
+public record AuthorResponse(UUID idAuthor, String firstName, String lastName) {
 }

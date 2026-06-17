@@ -2,7 +2,8 @@ package com.hei.school.dto;
 
 import com.hei.school.entity.BookFormat;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -12,11 +13,11 @@ import lombok.*;
 @Builder
 public class ArrivalDTO {
 
-  private Integer arrivalId;
-  private Integer bookId;
-  private Integer libraryId;
+  private UUID arrivalId;
+  private UUID bookId;
+  private UUID libraryId;
   private BookFormat format;
   private Integer quantity;
-  private LocalDate arrivalDate;
+  private Instant arrivalDate;
   private BigDecimal unitCost;
 }

@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.hei.school.client.BookClient;
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
 import com.hei.school.entity.BookGenre;
 import com.hei.school.entity.Genre;
 import com.hei.school.repository.BookGenreRepository;
+import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.GenreRepository;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,7 @@ class GenreServiceTest {
 
   @Mock private BookGenreRepository bookGenreRepository;
 
-  @Mock private BookClient bookClient;
+  @Mock private BookRepository bookRepository;
 
   @InjectMocks private GenreService genreService;
 
@@ -164,7 +164,7 @@ class GenreServiceTest {
   @Test
   void testAddGenreToBook_Success() {
     when(genreRepository.existsById(genreId)).thenReturn(true);
-    when(bookClient.bookExists(bookId)).thenReturn(true);
+    when(bookRepository.existsById(bookId)).thenReturn(true); // Changé ici
     when(bookGenreRepository.existsByBookIdAndGenreId(bookId, genreId)).thenReturn(false);
     when(genreRepository.getReferenceById(genreId)).thenReturn(createSampleGenre());
 
@@ -190,7 +190,7 @@ class GenreServiceTest {
   @Test
   void testAddGenreToBook_BookNotFound() {
     when(genreRepository.existsById(genreId)).thenReturn(true);
-    when(bookClient.bookExists(bookId)).thenReturn(false);
+    when(bookRepository.existsById(bookId)).thenReturn(false); // Changé ici
 
     assertThatThrownBy(() -> genreService.addGenreToBook(bookId, genreId))
         .isInstanceOf(ResponseStatusException.class)
@@ -205,7 +205,7 @@ class GenreServiceTest {
   @Test
   void testAddGenreToBook_AlreadyExists() {
     when(genreRepository.existsById(genreId)).thenReturn(true);
-    when(bookClient.bookExists(bookId)).thenReturn(true);
+    when(bookRepository.existsById(bookId)).thenReturn(true); // Changé ici
     when(bookGenreRepository.existsByBookIdAndGenreId(bookId, genreId)).thenReturn(true);
 
     assertThatThrownBy(() -> genreService.addGenreToBook(bookId, genreId))

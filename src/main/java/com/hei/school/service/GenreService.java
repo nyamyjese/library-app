@@ -1,12 +1,12 @@
 package com.hei.school.service;
 
-import com.hei.school.client.BookClient;
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
 import com.hei.school.entity.BookGenre;
 import com.hei.school.entity.Genre;
 import com.hei.school.repository.BookGenreRepository;
+import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.GenreRepository;
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class GenreService {
 
   private final GenreRepository genreRepository;
   private final BookGenreRepository bookGenreRepository;
-  private final BookClient bookClient;
+  private final BookRepository bookRepository;
 
   @Transactional
   public GenreResponse createGenre(GenreCreateRequest request) {
@@ -78,9 +78,10 @@ public class GenreService {
     if (!genreRepository.existsById(genreId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found");
     }
-    if (!bookClient.bookExists(bookId)) {
+    if (!bookRepository.existsById(bookId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
     }
+
     if (bookGenreRepository.existsByBookIdAndGenreId(bookId, genreId)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Association already exists");
     }

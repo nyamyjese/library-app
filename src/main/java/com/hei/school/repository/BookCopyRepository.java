@@ -3,6 +3,8 @@ package com.hei.school.repository;
 import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.CopyStatus;
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +13,7 @@ public interface BookCopyRepository extends JpaRepository<BookCopy, Integer> {
 
   List<BookCopy> findAllByStatus(CopyStatus status);
 
-  List<BookCopy> findAllByBook_BookId(Integer bookId);
+  List<BookCopy> findAllByBook_BookId(UUID bookId);
 
   List<BookCopy> findAllByLibrary_LibraryId(Integer libraryId);
 

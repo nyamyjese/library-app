@@ -5,6 +5,8 @@ import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.CopyStatus;
 import com.hei.school.repository.BookCopyRepository;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +33,7 @@ public class BookCopyService {
     return bookCopyRepository.findAllByStatus(CopyStatus.SOLD).stream().map(this::toDTO).toList();
   }
 
-  public List<BookCopyDTO> getByBook(Integer bookId) {
+  public List<BookCopyDTO> getByBook(UUID bookId) {
     return bookCopyRepository.findAllByBook_BookId(bookId).stream().map(this::toDTO).toList();
   }
 

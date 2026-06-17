@@ -4,6 +4,8 @@ import com.hei.school.dto.BookCopyDTO;
 import com.hei.school.entity.CopyStatus;
 import com.hei.school.service.BookCopyService;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +37,7 @@ public class BookCopyController {
   }
 
   @GetMapping(params = "bookId")
-  public List<BookCopyDTO> getByBook(@RequestParam Integer bookId) {
+  public List<BookCopyDTO> getByBook(@RequestParam UUID bookId) {
     return bookCopyService.getByBook(bookId);
   }
 

@@ -1,6 +1,5 @@
 package com.hei.school.service;
 
-import com.hei.school.client.BookClient;
 import com.hei.school.dto.request.AuthorCreateRequest;
 import com.hei.school.dto.request.AuthorUpdateRequest;
 import com.hei.school.dto.response.AuthorResponse;
@@ -8,6 +7,7 @@ import com.hei.school.entity.Author;
 import com.hei.school.entity.BookAuthor;
 import com.hei.school.repository.AuthorRepository;
 import com.hei.school.repository.BookAuthorRepository;
+import com.hei.school.repository.BookRepository;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public class AuthorService {
 
   private final AuthorRepository authorRepository;
   private final BookAuthorRepository bookAuthorRepository;
-  private final BookClient bookClient;
+  private final BookRepository bookRepository;
 
   @Transactional
   public AuthorResponse createAuthor(AuthorCreateRequest request) {
@@ -80,9 +80,11 @@ public class AuthorService {
     if (!authorRepository.existsById(authorId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
     }
-    if (!bookClient.bookExists(bookId)) {
+
+    if (!bookRepository.existsById(bookId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
     }
+
     if (bookAuthorRepository.existsByBookIdAndAuthorId(bookId, authorId)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Association already exists");
     }

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.hei.school.client.BookClient;
 import com.hei.school.dto.request.AuthorCreateRequest;
 import com.hei.school.dto.request.AuthorUpdateRequest;
 import com.hei.school.dto.response.AuthorResponse;
@@ -14,6 +13,7 @@ import com.hei.school.entity.BookAuthor;
 import com.hei.school.entity.enums.Sexe;
 import com.hei.school.repository.AuthorRepository;
 import com.hei.school.repository.BookAuthorRepository;
+import com.hei.school.repository.BookRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +33,7 @@ class AuthorServiceTest {
 
   @Mock private BookAuthorRepository bookAuthorRepository;
 
-  @Mock private BookClient bookClient;
+  @Mock private BookRepository bookRepository;
 
   @InjectMocks private AuthorService authorService;
 
@@ -137,7 +137,6 @@ class AuthorServiceTest {
             });
   }
 
-  // ==================== GET ALL AUTHORS ====================
   @Test
   void testGetAllAuthors() {
     when(authorRepository.findAll()).thenReturn(List.of(author));
@@ -149,7 +148,6 @@ class AuthorServiceTest {
     verify(authorRepository).findAll();
   }
 
-  // ==================== SEARCH AUTHORS BY LAST NAME ====================
   @Test
   void testSearchAuthorsByLastName() {
     String lastName = "Doe";
@@ -161,11 +159,10 @@ class AuthorServiceTest {
     verify(authorRepository).findByLastNameContainingIgnoreCase(lastName);
   }
 
-  // ==================== ADD AUTHOR TO BOOK ====================
   @Test
   void testAddAuthorToBook_Success() {
     when(authorRepository.existsById(authorId)).thenReturn(true);
-    when(bookClient.bookExists(bookId)).thenReturn(true);
+    when(bookRepository.existsById(bookId)).thenReturn(true); // Changé ici
     when(bookAuthorRepository.existsByBookIdAndAuthorId(bookId, authorId)).thenReturn(false);
     when(authorRepository.getReferenceById(authorId)).thenReturn(author);
 
@@ -191,7 +188,7 @@ class AuthorServiceTest {
   @Test
   void testAddAuthorToBook_BookNotFound() {
     when(authorRepository.existsById(authorId)).thenReturn(true);
-    when(bookClient.bookExists(bookId)).thenReturn(false);
+    when(bookRepository.existsById(bookId)).thenReturn(false); // Changé ici
 
     assertThatThrownBy(() -> authorService.addAuthorToBook(bookId, authorId))
         .isInstanceOf(ResponseStatusException.class)
@@ -207,7 +204,7 @@ class AuthorServiceTest {
   @Test
   void testAddAuthorToBook_AlreadyExists() {
     when(authorRepository.existsById(authorId)).thenReturn(true);
-    when(bookClient.bookExists(bookId)).thenReturn(true);
+    when(bookRepository.existsById(bookId)).thenReturn(true); // Changé ici
     when(bookAuthorRepository.existsByBookIdAndAuthorId(bookId, authorId)).thenReturn(true);
 
     assertThatThrownBy(() -> authorService.addAuthorToBook(bookId, authorId))
@@ -220,7 +217,6 @@ class AuthorServiceTest {
     verify(bookAuthorRepository, never()).save(any());
   }
 
-  // ==================== REMOVE AUTHOR FROM BOOK ====================
   @Test
   void testRemoveAuthorFromBook_Success() {
     when(bookAuthorRepository.existsByBookIdAndAuthorId(bookId, authorId)).thenReturn(true);
@@ -244,7 +240,6 @@ class AuthorServiceTest {
     verify(bookAuthorRepository, never()).deleteByBookIdAndAuthorId(any(), any());
   }
 
-  // ==================== GET AUTHORS BY BOOK ====================
   @Test
   void testGetAuthorsByBook() {
     BookAuthor bookAuthor = BookAuthor.builder().bookId(bookId).author(author).build();
@@ -283,34 +278,4 @@ class AuthorServiceTest {
             });
     verify(bookAuthorRepository, never()).findByAuthorId(any());
   }
-
-  @Test
-  void testAddAuthorToBook() {}
-
-  @Test
-  void testCreateAuthor() {}
-
-  @Test
-  void testDeleteAuthor() {}
-
-  @Test
-  void testGetAllAuthors2() {}
-
-  @Test
-  void testGetAuthorById() {}
-
-  @Test
-  void testGetAuthorsByBook2() {}
-
-  @Test
-  void testGetBooksByAuthor() {}
-
-  @Test
-  void testRemoveAuthorFromBook() {}
-
-  @Test
-  void testSearchAuthorsByLastName2() {}
-
-  @Test
-  void testUpdateAuthor() {}
 }

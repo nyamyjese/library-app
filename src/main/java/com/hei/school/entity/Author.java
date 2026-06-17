@@ -1,15 +1,13 @@
 package com.hei.school.entity;
 
+import com.hei.school.entity.enums.Sexe;
+import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
-
-import com.hei.school.entity.enums.Sexe;
-
-import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name="authors")
+@Table(name = "authors")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,23 +15,21 @@ import lombok.*;
 @Builder
 public class Author {
 
-    @Id 
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idAuthor;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID idAuthor;
 
-    @Column(name = "first_name", nullable = false, length  = 100)
-    private String firstName;
+  @Column(name = "first_name", nullable = false, length = 100)
+  private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 100)
-    private String lastName;
+  @Column(name = "last_name", nullable = false, length = 100)
+  private String lastName;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private Sexe sexe = Sexe.M;
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private Sexe sexe = Sexe.M;
 
-    @Builder.Default
-    private Instant createdDate = Instant.now();
+  @Builder.Default private Instant createdDate = Instant.now();
 
-    @Builder.Default
-    private Instant updatedDate = Instant.now();
+  @Builder.Default private Instant updatedDate = Instant.now();
 }

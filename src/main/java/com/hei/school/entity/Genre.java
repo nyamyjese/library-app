@@ -1,8 +1,7 @@
 package com.hei.school.entity;
 
-import java.util.UUID;
-
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
 
 @Entity
@@ -13,10 +12,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Genre {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(name = "name", nullable = false, length = 100, unique = true)
-    private String name;
+  @Column(name = "name", nullable = false, length = 100, unique = true)
+  private String name;
 }

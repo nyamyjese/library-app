@@ -1,8 +1,7 @@
 package com.hei.school.dto.request;
 
+import com.hei.school.entity.enums.Sexe;
 import java.time.Instant;
 
-import com.hei.school.entity.enums.Sexe;
-
-public record AuthorCreateRequest(String firstName, String lastName, Sexe sexe, Instant createdDate) {
-}
+public record AuthorCreateRequest(
+    String firstName, String lastName, Sexe sexe, Instant createdDate) {}

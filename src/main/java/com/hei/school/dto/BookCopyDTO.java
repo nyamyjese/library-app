@@ -3,7 +3,8 @@ package com.hei.school.dto;
 import com.hei.school.entity.BookFormat;
 import com.hei.school.entity.CopyStatus;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -13,11 +14,11 @@ import lombok.*;
 @Builder
 public class BookCopyDTO {
 
-  private Integer copyId;
-  private Integer bookId;
-  private Integer libraryId;
+  private UUID copyId;
+  private UUID bookId;
+  private UUID libraryId;
   private BookFormat format;
   private BigDecimal copyPrice;
   private CopyStatus status;
-  private LocalDate acquisitionDate;
+  private Instant acquisitionDate;
 }

@@ -2,16 +2,16 @@ package com.hei.school.endpoint.rest.controller;
 
 import com.hei.school.dto.ArrivalDTO;
 import com.hei.school.service.ArrivalService;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/arrivals")
+@RequestMapping("/api/arrivals")
 public class ArrivalController {
 
   private final ArrivalService arrivalService;
@@ -23,7 +23,7 @@ public class ArrivalController {
   }
 
   @PutMapping("/{id}")
-  public ArrivalDTO updateArrival(@PathVariable Integer id, @RequestBody ArrivalDTO dto) {
+  public ArrivalDTO updateArrival(@PathVariable UUID id, @RequestBody ArrivalDTO dto) {
     return arrivalService.updateArrival(id, dto);
   }
 
@@ -33,30 +33,29 @@ public class ArrivalController {
   }
 
   @GetMapping("/{id}")
-  public ArrivalDTO getById(@PathVariable Integer id) {
+  public ArrivalDTO getById(@PathVariable UUID id) {
     return arrivalService.getById(id);
   }
 
   @GetMapping(params = "bookId")
-  public List<ArrivalDTO> getByBook(@RequestParam Integer bookId) {
+  public List<ArrivalDTO> getByBook(@RequestParam UUID bookId) {
     return arrivalService.getByBook(bookId);
   }
 
   @GetMapping(params = "libraryId")
-  public List<ArrivalDTO> getByLibrary(@RequestParam Integer libraryId) {
+  public List<ArrivalDTO> getByLibrary(@RequestParam UUID libraryId) {
     return arrivalService.getByLibrary(libraryId);
   }
 
   @GetMapping(params = "date")
-  public List<ArrivalDTO> getByDate(
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+  public List<ArrivalDTO> getByDate(@RequestParam Instant date) {
     return arrivalService.getByDate(date);
   }
 
   @GetMapping(params = {"from", "to"})
   public List<ArrivalDTO> getByDateRange(
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+          @RequestParam Instant from,
+          @RequestParam Instant to) {
     return arrivalService.getByDateRange(from, to);
   }
 }

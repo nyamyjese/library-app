@@ -3,7 +3,13 @@ package com.hei.school.entity;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
@@ -12,18 +18,18 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Book {
-
     @Id
-    private UUID book_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID bookId;
 
-    @Column(name = "title", length = 255, nullable = false)
+    @Column(length = 255, nullable = false)
     private String title;
 
-    @Column(name = "isbn", length = 13)
+    @Column(length = 20)
     private String isbn;
 
-    @Column(name = "date_publication", nullable = false)
-    private LocalDate publication = LocalDate.now();
-
+    @Column(name = "publication_year")
+    private LocalDate publication;
 }

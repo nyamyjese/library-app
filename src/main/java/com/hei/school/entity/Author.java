@@ -19,7 +19,7 @@ public class Author {
 
     @Id 
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id_author;
+    private UUID idAuthor;
 
     @Column(name = "first_name", nullable = false, length  = 100)
     private String firstName;
@@ -28,12 +28,12 @@ public class Author {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sexe", nullable = true)
+    @Builder.Default
     private Sexe sexe = Sexe.M;
 
-    @Column(name = "create_date", nullable = false)
-    private Instant createdDate;
+    @Builder.Default
+    private Instant createdDate = Instant.now();
 
-    @Column(name = "update_date", nullable = false)
-    private Instant updatedDate;
+    @Builder.Default
+    private Instant updatedDate = Instant.now();
 }

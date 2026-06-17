@@ -2,7 +2,8 @@ package com.hei.school.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.*;
 
 @Entity
@@ -15,17 +16,15 @@ import lombok.*;
 public class Arrival {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "arrival_id")
-  private Integer arrivalId;
+  private UUID arrivalId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "book_id", nullable = false)
-  private Book book;
+  @Column(name = "book_id", nullable = false)
+  private UUID bookId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "library_id", nullable = false)
-  private Library library;
+  @Column(name = "library_id", nullable = false)
+  private UUID libraryId;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "format", nullable = false, length = 50)
@@ -35,7 +34,7 @@ public class Arrival {
   private Integer quantity;
 
   @Column(name = "arrival_date", nullable = false)
-  private LocalDate arrivalDate;
+  private Instant arrivalDate;
 
   @Column(name = "unit_cost", nullable = false, precision = 10, scale = 2)
   private BigDecimal unitCost;

@@ -2,7 +2,8 @@ package com.hei.school.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.*;
 
 @Entity
@@ -15,17 +16,15 @@ import lombok.*;
 public class BookCopy {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "copy_id")
-  private Integer copyId;
+  private UUID copyId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "book_id", nullable = false)
-  private Book book;
+  @Column(name = "book_id", nullable = false)
+  private UUID bookId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "library_id", nullable = false)
-  private Library library;
+  @Column(name = "library_id", nullable = false)
+  private UUID libraryId;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "format", nullable = false, length = 50)
@@ -39,5 +38,5 @@ public class BookCopy {
   private CopyStatus status;
 
   @Column(name = "acquisition_date", nullable = false)
-  private LocalDate acquisitionDate;
+  private Instant acquisitionDate;
 }

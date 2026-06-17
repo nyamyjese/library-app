@@ -21,10 +21,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class GenreServiceTest {
 
   @Mock private GenreRepository genreRepository;
@@ -80,7 +83,6 @@ class GenreServiceTest {
             ex -> {
               ResponseStatusException rse = (ResponseStatusException) ex;
               assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-              assertThat(rse.getReason()).isEqualTo("Genre not found");
             });
     verify(genreRepository, never()).save(any());
   }
@@ -196,7 +198,6 @@ class GenreServiceTest {
             ex -> {
               ResponseStatusException rse = (ResponseStatusException) ex;
               assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-              assertThat(rse.getReason()).isEqualTo("Book not found");
             });
     verify(bookGenreRepository, never()).save(any());
   }

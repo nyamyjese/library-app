@@ -1,5 +1,6 @@
 package com.hei.school.service;
 
+import com.hei.school.client.BookClient;
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
@@ -22,6 +23,7 @@ public class GenreService {
 
   private final GenreRepository genreRepository;
   private final BookGenreRepository bookGenreRepository;
+  private final BookClient bookClient;
 
   @Transactional
   public GenreResponse createGenre(GenreCreateRequest request) {
@@ -75,6 +77,9 @@ public class GenreService {
   public void addGenreToBook(UUID bookId, UUID genreId) {
     if (!genreRepository.existsById(genreId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found");
+    }
+    if (!bookClient.bookExists(bookId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
     }
     if (bookGenreRepository.existsByBookIdAndGenreId(bookId, genreId)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Association already exists");

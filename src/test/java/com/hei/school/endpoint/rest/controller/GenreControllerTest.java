@@ -48,7 +48,7 @@ class GenreControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/genres")
+            post("/api/genres")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest)))
         .andExpect(status().isCreated())
@@ -61,7 +61,7 @@ class GenreControllerTest {
 
     mockMvc
         .perform(
-            put("/api/v1/genres")
+            put("/api/genres")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isOk())
@@ -75,7 +75,7 @@ class GenreControllerTest {
 
     mockMvc
         .perform(
-            put("/api/v1/genres")
+            put("/api/genres")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isNotFound());
@@ -85,7 +85,7 @@ class GenreControllerTest {
   void testDeleteGenre() throws Exception {
     doNothing().when(genreService).deleteGenre(genreId);
 
-    mockMvc.perform(delete("/api/v1/genres/{genreId}", genreId)).andExpect(status().isNoContent());
+    mockMvc.perform(delete("/api/genres/{genreId}", genreId)).andExpect(status().isNoContent());
   }
 
   @Test
@@ -94,7 +94,7 @@ class GenreControllerTest {
         .when(genreService)
         .deleteGenre(genreId);
 
-    mockMvc.perform(delete("/api/v1/genres/{genreId}", genreId)).andExpect(status().isNotFound());
+    mockMvc.perform(delete("/api/genres/{genreId}", genreId)).andExpect(status().isNotFound());
   }
 
   @Test
@@ -102,7 +102,7 @@ class GenreControllerTest {
     when(genreService.getGenreById(genreId)).thenReturn(genreResponse);
 
     mockMvc
-        .perform(get("/api/v1/genres/{genreId}", genreId))
+        .perform(get("/api/genres/{genreId}", genreId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Fantasy"));
   }
@@ -112,7 +112,7 @@ class GenreControllerTest {
     when(genreService.getGenreById(genreId))
         .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
 
-    mockMvc.perform(get("/api/v1/genres/{genreId}", genreId)).andExpect(status().isNotFound());
+    mockMvc.perform(get("/api/genres/{genreId}", genreId)).andExpect(status().isNotFound());
   }
 
   @Test

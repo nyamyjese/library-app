@@ -8,10 +8,10 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class BookDTO {
-    private long bookId;
+    private Long bookId;
     private String title;
     private String isbn;
     private Integer publicationYear;
     private BigDecimal price;
-    private long libraryId;
+    private Long libraryId;
 }

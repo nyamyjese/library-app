@@ -18,5 +18,5 @@ public class BookDTO {
     private String isbn;
     private Integer publicationYear;
     private BigDecimal price;
-    private Long libraryId;
+    private UUID libraryId;
 }

@@ -9,14 +9,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-
 public interface BookRepository extends JpaRepository<Book, UUID> {
 
     List<Book> findByTitleContainingIgnoreCase(String title);
 
     Optional<Book> findByIsbn(String isbn);
 
-    List<Book> findByLibrary_LibraryId(Long libraryId);
+    List<Book> findByLibrary_LibraryId(UUID libraryId);
 
     List<Book> findByPublicationYear(Integer year);
 

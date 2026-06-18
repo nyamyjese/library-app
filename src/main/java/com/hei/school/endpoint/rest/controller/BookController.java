@@ -37,8 +37,9 @@ public class BookController {
         return ResponseEntity.ok(bookService.searchByIsbn(isbn));
     }
 
+    // libraryId : Long → UUID
     @GetMapping("/library/{libraryId}")
-    public ResponseEntity<List<BookDTO>> getByLibrary(@PathVariable Long libraryId) {
+    public ResponseEntity<List<BookDTO>> getByLibrary(@PathVariable UUID libraryId) {
         return ResponseEntity.ok(bookService.getByLibrary(libraryId));
     }
 

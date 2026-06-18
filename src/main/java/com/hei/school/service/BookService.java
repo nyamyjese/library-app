@@ -42,7 +42,7 @@ public class BookService {
                 .orElseThrow(() -> new RuntimeException("Book with ISBN : " + isbn +  " not found!")));
     }
 
-    public List<BookDTO> getByLibrary(Long libraryId) {
+    public List<BookDTO> getByLibrary(UUID libraryId) {
         return bookRepository.findByLibrary_LibraryId(libraryId)
                 .stream().map(this::toDTO).toList();
     }

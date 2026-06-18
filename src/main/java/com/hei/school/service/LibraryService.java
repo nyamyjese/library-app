@@ -1,12 +1,13 @@
 package com.hei.school.service;
 
 import com.hei.school.dto.LibraryDTO;
-import com.hei.school.entity.Library;  // ✅ bon import
+import com.hei.school.entity.Library;
 import com.hei.school.repository.LibraryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LibraryService {
@@ -18,13 +19,13 @@ public class LibraryService {
         return libraryRepository.findAll();
     }
 
-    public Library getById(Long id) {
+    public Library getById(UUID id) {
         return libraryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Library not found : " + id));
     }
 
     public List<Library> searchByName(String name) {
-        return libraryRepository.findByName(name);
+        return libraryRepository.findByNameContainingIgnoreCase(name);
     }
 
     public Library create(LibraryDTO dto) {
@@ -35,7 +36,7 @@ public class LibraryService {
         return libraryRepository.save(library);
     }
 
-    public Library update(Long id, LibraryDTO dto) {
+    public Library update(UUID id, LibraryDTO dto) {
         Library library = getById(id);
         library.setName(dto.getName());
         library.setAddress(dto.getAddress());
@@ -43,7 +44,7 @@ public class LibraryService {
         return libraryRepository.save(library);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         libraryRepository.deleteById(id);
     }
 }

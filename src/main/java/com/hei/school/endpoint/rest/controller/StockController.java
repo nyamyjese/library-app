@@ -1,4 +1,3 @@
 package com.hei.school.endpoint.rest.controller;
 
-public class StockController {
-}
+public class StockController {}

@@ -9,76 +9,96 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BookService {
+
     @Autowired
     private BookRepository bookRepository;
 
     @Autowired
     private LibraryRepository libraryRepository;
 
-    public List<Book> getAll() {
-        return bookRepository.findAll();
+    public List<BookDTO> getAll() {
+        return bookRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
-    public Book getById(Long id) {
-        return bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book with id: " + id + " not found"));
+    public BookDTO getById(UUID id) {
+        return toDTO(bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book with id : " + id + " not found!")));
     }
 
-    public List<Book> searchByTitle (String title) {
-        return bookRepository.findByTitleContainingIgnoreCase(title);
+    public List<BookDTO> searchByTitle(String title) {
+        return bookRepository.findByTitleContainingIgnoreCase(title)
+                .stream().map(this::toDTO).toList();
     }
 
-    public Book searchByIsbn(String isbn) {
-        return bookRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new RuntimeException("Book with isbn : " + isbn +  " not found"));
+    public BookDTO searchByIsbn(String isbn) {
+        return toDTO(bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new RuntimeException("Book with ISBN : " + isbn +  " not found!")));
     }
 
-    public List<Book> getByLibraryId(Long libraryId) {
-        return bookRepository.findByLibrary_LibraryId(libraryId);
+    public List<BookDTO> getByLibrary(Long libraryId) {
+        return bookRepository.findByLibrary_LibraryId(libraryId)
+                .stream().map(this::toDTO).toList();
     }
 
-    public List<Book> getByPublicationYear(Integer year) {
-        return bookRepository.findByPublicationYear(year);
+    public List<BookDTO> getByYear(Integer year) {
+        return bookRepository.findByPublicationYear(year)
+                .stream().map(this::toDTO).toList();
     }
 
-    public List<Book> getAllSortedByTitle() {
-        return bookRepository.findAllByOrderByTitleAsc();
+    public List<BookDTO> getAllSortedByTitle() {
+        return bookRepository.findAllByOrderByTitleAsc()
+                .stream().map(this::toDTO).toList();
     }
 
-    public List<Book> getAllSortedByPrice(){
-        return bookRepository.findAllByOrderByPriceAsc();
+    public List<BookDTO> getAllSortedByPrice() {
+        return bookRepository.findAllByOrderByPriceAsc()
+                .stream().map(this::toDTO).toList();
     }
 
-    public Book create(BookDTO  bookDTO) {
-        Library library = libraryRepository.findById(bookDTO.getLibraryId())
-                .orElseThrow(() -> new RuntimeException("Library with id: " + bookDTO.getLibraryId() + " not found"));
-
+    public BookDTO create(BookDTO dto) {
+        Library library = libraryRepository.findById(dto.getLibraryId())
+                .orElseThrow(() -> new RuntimeException("Library with id : " + dto.getLibraryId() +  " not found!"));
         Book book = new Book();
-        book.setTitle(bookDTO.getTitle());
-        book.setIsbn(bookDTO.getIsbn());
-        book.setPublicationYear(bookDTO.getPublicationYear());
-        book.setPrice(bookDTO.getPrice());
+        book.setTitle(dto.getTitle());
+        book.setIsbn(dto.getIsbn());
+        book.setPublicationYear(dto.getPublicationYear());
+        book.setPrice(dto.getPrice());
         book.setLibrary(library);
-        return bookRepository.save(book);
+        return toDTO(bookRepository.save(book));
     }
 
-    public Book update(Long id, BookDTO  bookDTO) {
-        Book book = getById(id);
-        Library library = libraryRepository.findById(bookDTO.getLibraryId())
-                .orElseThrow(() -> new RuntimeException("Library with id: " + bookDTO.getLibraryId() + " not found"));
-
-        book.setTitle(bookDTO.getTitle());
-        book.setIsbn(bookDTO.getIsbn());
-        book.setPublicationYear(bookDTO.getPublicationYear());
-        book.setPrice(bookDTO.getPrice());
+    public BookDTO update(UUID id, BookDTO dto) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book with id : " + id +  " not found!"));
+        Library library = libraryRepository.findById(dto.getLibraryId())
+                .orElseThrow(() -> new RuntimeException("Library with id : " + dto.getLibraryId() +   " not found!"));
+        book.setTitle(dto.getTitle());
+        book.setIsbn(dto.getIsbn());
+        book.setPublicationYear(dto.getPublicationYear());
+        book.setPrice(dto.getPrice());
         book.setLibrary(library);
-        return bookRepository.save(book);
+        return toDTO(bookRepository.save(book));
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         bookRepository.deleteById(id);
+    }
+
+    private BookDTO toDTO(Book book) {
+        BookDTO dto = new BookDTO();
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setIsbn(book.getIsbn());
+        dto.setPublicationYear(book.getPublicationYear());
+        dto.setPrice(book.getPrice());
+        dto.setLibraryId(book.getLibrary().getLibraryId());
+        return dto;
     }
 }

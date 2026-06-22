@@ -38,7 +38,9 @@ public class ArrivalService {
               .format(arrival.getFormat())
               .copyPrice(arrival.getUnitCost())
               .status(CopyStatus.AVAILABLE)
-              .acquisitionDate(arrival.getArrivalDate() != null ? arrival.getArrivalDate() : Instant.now())
+              .acquisitionDate(arrival.getArrivalDate() != null
+                      ? arrival.getArrivalDate()
+                      : Instant.now())
               .build();
       copies.add(copy);
     }

@@ -45,11 +45,6 @@ public class BookCopyService {
     return bookCopyRepository.findAllByLibraryId(libraryId).stream().map(this::toDTO).toList();
   }
 
-  public List<BookCopyDTO> getAvailableByLibrary(UUID libraryId) {
-    return bookCopyRepository.findAllByLibraryIdAndStatus(libraryId, CopyStatus.AVAILABLE)
-            .stream().map(this::toDTO).toList();
-  }
-
   public BookCopyDTO updateStatus(UUID id, CopyStatus newStatus) {
     BookCopy copy = bookCopyRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("BookCopy introuvable : id=" + id));
@@ -63,13 +58,13 @@ public class BookCopyService {
 
   private BookCopyDTO toDTO(BookCopy c) {
     return BookCopyDTO.builder()
-            .copyId(c.getCopyId())
+            .id(c.getId())
             .bookId(c.getBookId())
             .libraryId(c.getLibraryId())
             .format(c.getFormat())
-            .copyPrice(c.getCopyPrice())
+            .isbn(c.getIsbn())
+            .sellingPrice(c.getSellingPrice())
             .status(c.getStatus())
-            .acquisitionDate(c.getAcquisitionDate())
             .build();
   }
 }

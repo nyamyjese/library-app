@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/book-copies")
+@RequestMapping("/book-copies")
 public class BookCopyController {
 
   private final BookCopyService bookCopyService;
@@ -48,11 +48,6 @@ public class BookCopyController {
   @GetMapping(params = "libraryId")
   public List<BookCopyDTO> getByLibrary(@RequestParam UUID libraryId) {
     return bookCopyService.getByLibrary(libraryId);
-  }
-
-  @GetMapping(value = "/available", params = "libraryId")
-  public List<BookCopyDTO> getAvailableByLibrary(@RequestParam UUID libraryId) {
-    return bookCopyService.getAvailableByLibrary(libraryId);
   }
 
   @GetMapping("/count/available")

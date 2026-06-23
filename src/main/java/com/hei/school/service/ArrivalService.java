@@ -4,10 +4,11 @@ import com.hei.school.dto.ArrivalDTO;
 import com.hei.school.entity.Arrival;
 import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.CopyStatus;
+import com.hei.school.entity.StockMovement;
 import com.hei.school.repository.ArrivalRepository;
 import com.hei.school.repository.BookCopyRepository;
+import com.hei.school.repository.StockMovementRepository;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -20,43 +21,27 @@ public class ArrivalService {
 
   private final ArrivalRepository arrivalRepository;
   private final BookCopyRepository bookCopyRepository;
+  private final StockMovementRepository stockMovementRepository;
 
   @Transactional
   public ArrivalDTO createArrival(ArrivalDTO dto) {
     Arrival arrival = toEntity(dto);
     Arrival saved = arrivalRepository.save(arrival);
-    generateBookCopies(saved);
+
+    BookCopy copy = bookCopyRepository.findById(saved.getCopyId())
+            .orElseThrow(() -> new RuntimeException("BookCopy introuvable : id=" + saved.getCopyId()));
+    copy.setStatus(CopyStatus.AVAILABLE);
+    bookCopyRepository.save(copy);
+
+    StockMovement movement = StockMovement.builder()
+            .copyId(saved.getCopyId())
+            .quantity(saved.getQuantity())
+            .movementDate(Instant.now())
+            .arrivalId(saved.getId())
+            .build();
+    stockMovementRepository.save(movement);
+
     return toDTO(saved);
-  }
-
-  private void generateBookCopies(Arrival arrival) {
-    List<BookCopy> copies = new ArrayList<>();
-    for (int i = 0; i < arrival.getQuantity(); i++) {
-      BookCopy copy = BookCopy.builder()
-              .bookId(arrival.getBookId())
-              .libraryId(arrival.getLibraryId())
-              .format(arrival.getFormat())
-              .copyPrice(arrival.getUnitCost())
-              .status(CopyStatus.AVAILABLE)
-              .acquisitionDate(arrival.getArrivalDate() != null
-                      ? arrival.getArrivalDate()
-                      : Instant.now())
-              .build();
-      copies.add(copy);
-    }
-    bookCopyRepository.saveAll(copies);
-  }
-
-  public ArrivalDTO updateArrival(UUID id, ArrivalDTO dto) {
-    Arrival existing = arrivalRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Arrival introuvable : id=" + id));
-    existing.setBookId(dto.getBookId());
-    existing.setLibraryId(dto.getLibraryId());
-    existing.setFormat(dto.getFormat());
-    existing.setQuantity(dto.getQuantity());
-    existing.setArrivalDate(dto.getArrivalDate());
-    existing.setUnitCost(dto.getUnitCost());
-    return toDTO(arrivalRepository.save(existing));
   }
 
   public ArrivalDTO getById(UUID id) {
@@ -68,42 +53,26 @@ public class ArrivalService {
     return arrivalRepository.findAll().stream().map(this::toDTO).toList();
   }
 
-  public List<ArrivalDTO> getByBook(UUID bookId) {
-    return arrivalRepository.findAllByBookId(bookId).stream().map(this::toDTO).toList();
-  }
-
-  public List<ArrivalDTO> getByLibrary(UUID libraryId) {
-    return arrivalRepository.findAllByLibraryId(libraryId).stream().map(this::toDTO).toList();
-  }
-
-  public List<ArrivalDTO> getByDate(Instant date) {
-    return arrivalRepository.findAllByArrivalDate(date).stream().map(this::toDTO).toList();
-  }
-
-  public List<ArrivalDTO> getByDateRange(Instant from, Instant to) {
-    return arrivalRepository.findAllByArrivalDateBetween(from, to).stream().map(this::toDTO).toList();
+  public List<ArrivalDTO> getByCopyId(UUID copyId) {
+    return arrivalRepository.findAllByCopyId(copyId).stream().map(this::toDTO).toList();
   }
 
   private Arrival toEntity(ArrivalDTO dto) {
     return Arrival.builder()
-            .bookId(dto.getBookId())
-            .libraryId(dto.getLibraryId())
-            .format(dto.getFormat())
+            .copyId(dto.getCopyId())
             .quantity(dto.getQuantity())
-            .arrivalDate(dto.getArrivalDate() != null ? dto.getArrivalDate() : Instant.now())
             .unitCost(dto.getUnitCost())
+            .arrivalDate(dto.getArrivalDate() != null ? dto.getArrivalDate() : Instant.now())
             .build();
   }
 
   private ArrivalDTO toDTO(Arrival a) {
     return ArrivalDTO.builder()
-            .arrivalId(a.getArrivalId())
-            .bookId(a.getBookId())
-            .libraryId(a.getLibraryId())
-            .format(a.getFormat())
+            .id(a.getId())
+            .copyId(a.getCopyId())
             .quantity(a.getQuantity())
-            .arrivalDate(a.getArrivalDate())
             .unitCost(a.getUnitCost())
+            .arrivalDate(a.getArrivalDate())
             .build();
   }
 }

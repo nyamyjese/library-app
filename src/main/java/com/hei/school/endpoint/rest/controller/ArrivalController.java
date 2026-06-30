@@ -31,8 +31,8 @@ public class ArrivalController {
     return arrivalService.getById(id);
   }
 
-  @GetMapping(params = "copyId")
-  public List<ArrivalDTO> getByCopyId(@RequestParam UUID copyId) {
-    return arrivalService.getByCopyId(copyId);
+  @GetMapping(params = "bookCopyId")
+  public List<ArrivalDTO> getByBookCopyId(@RequestParam UUID bookCopyId) {
+    return arrivalService.getByBookCopyId(bookCopyId);
   }
 }

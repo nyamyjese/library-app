@@ -13,7 +13,7 @@ import lombok.*;
 public class ArrivalDTO {
 
   private UUID id;
-  private UUID copyId;
+  private UUID bookCopyId;
   private Integer quantity;
   private BigDecimal unitCost;
   private Instant arrivalDate;

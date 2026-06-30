@@ -20,8 +20,8 @@ public class Arrival {
   @Column(name = "id")
   private UUID id;
 
-  @Column(name = "copy_id", nullable = false)
-  private UUID copyId;
+  @Column(name = "book_copy_id", nullable = false)
+  private UUID bookCopyId;
 
   @Column(name = "quantity", nullable = false)
   private Integer quantity;

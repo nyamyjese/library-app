@@ -28,13 +28,13 @@ public class ArrivalService {
     Arrival arrival = toEntity(dto);
     Arrival saved = arrivalRepository.save(arrival);
 
-    BookCopy copy = bookCopyRepository.findById(saved.getCopyId())
-            .orElseThrow(() -> new RuntimeException("BookCopy introuvable : id=" + saved.getCopyId()));
+    BookCopy copy = bookCopyRepository.findById(saved.getBookCopyId())
+            .orElseThrow(() -> new RuntimeException("BookCopy introuvable : id=" + saved.getBookCopyId()));
     copy.setStatus(CopyStatus.AVAILABLE);
     bookCopyRepository.save(copy);
 
     StockMovement movement = StockMovement.builder()
-            .copyId(saved.getCopyId())
+            .copyId(saved.getBookCopyId())
             .quantity(saved.getQuantity())
             .movementDate(Instant.now())
             .arrivalId(saved.getId())
@@ -53,13 +53,13 @@ public class ArrivalService {
     return arrivalRepository.findAll().stream().map(this::toDTO).toList();
   }
 
-  public List<ArrivalDTO> getByCopyId(UUID copyId) {
-    return arrivalRepository.findAllByCopyId(copyId).stream().map(this::toDTO).toList();
+  public List<ArrivalDTO> getByBookCopyId(UUID bookCopyId) {
+    return arrivalRepository.findAllByBookCopyId(bookCopyId).stream().map(this::toDTO).toList();
   }
 
   private Arrival toEntity(ArrivalDTO dto) {
     return Arrival.builder()
-            .copyId(dto.getCopyId())
+            .bookCopyId(dto.getBookCopyId())
             .quantity(dto.getQuantity())
             .unitCost(dto.getUnitCost())
             .arrivalDate(dto.getArrivalDate() != null ? dto.getArrivalDate() : Instant.now())
@@ -69,7 +69,7 @@ public class ArrivalService {
   private ArrivalDTO toDTO(Arrival a) {
     return ArrivalDTO.builder()
             .id(a.getId())
-            .copyId(a.getCopyId())
+            .bookCopyId(a.getBookCopyId())
             .quantity(a.getQuantity())
             .unitCost(a.getUnitCost())
             .arrivalDate(a.getArrivalDate())

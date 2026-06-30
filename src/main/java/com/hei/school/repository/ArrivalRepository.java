@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ArrivalRepository extends JpaRepository<Arrival, UUID> {
 
-  List<Arrival> findAllByCopyId(UUID copyId);
+  List<Arrival> findAllByBookCopyId(UUID bookCopyId);
 }

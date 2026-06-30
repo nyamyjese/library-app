@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,9 +38,6 @@ public class Customer {
   @NotBlank(message = "The phone is mandatory")
   @Column(name = "phone", nullable = false, unique = true)
   private String phone;
-
-  @OneToMany(mappedBy = "customer")
-  private List<Sale> sales;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;

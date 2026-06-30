@@ -1,42 +1,63 @@
 package com.hei.school.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "customer")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Customer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "customer_id")
-    private UUID customerId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(name = "first_name", nullable = false, length = 100)
-    private String firstName;
+  @NotBlank(message = "The first name is mandatory")
+  @Column(name = "first_name", nullable = false)
+  private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 100)
-    private String lastName;
+  @NotBlank(message = "The last name is mandatory")
+  @Column(name = "last_name", nullable = false)
+  private String lastName;
 
-    @Column(name = "email", unique = true, length = 150)
-    private String email;
+  @NotBlank(message = "The email is mandatory")
+  @Email(message = "The email is invalid")
+  @Column(name = "email", nullable = false, unique = true)
+  private String email;
 
-    @Column(name = "phone", length = 20)
-    private String phone;
+  @NotBlank(message = "The phone is mandatory")
+  @Column(name = "phone", nullable = false, unique = true)
+  private String phone;
 
-    @Column(name = "address", length = 255)
-    private String address;
+  @OneToMany(mappedBy = "customer")
+  private List<Sale> sales;
 
-    @Column(name = "registration_date")
-    private LocalDateTime registrationDate;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private Instant createdAt;
 
-    @Column(name = "loyalty_points")
-    private Integer loyaltyPoints;
+  @Column(name = "updated_at", nullable = false)
+  private Instant updatedAt;
+
+  @PrePersist
+  public void prePersist() {
+    Instant now = Instant.now();
+    this.createdAt = now;
+    this.updatedAt = now;
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    this.updatedAt = Instant.now();
+  }
 }

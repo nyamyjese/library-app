@@ -1,16 +1,10 @@
 package com.hei.school.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,4 +39,7 @@ public class Book {
   @ManyToOne
   @JoinColumn(name = "library_id", nullable = false)
   private Library library;
+
+  @OneToMany(mappedBy = "book")
+  private List<BookCopy> copies;
 }

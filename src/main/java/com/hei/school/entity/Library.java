@@ -18,7 +18,7 @@ import lombok.Setter;
 public class Library {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID libraryId;
+  private UUID id;
 
   @Column(nullable = false)
   private String name;

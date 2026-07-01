@@ -1,5 +1,17 @@
 package com.hei.school.endpoint.rest.controller;
 
+import com.hei.school.dto.request.CreateSaleRequest;
+import com.hei.school.dto.request.UpdateSaleRequest;
+import com.hei.school.dto.response.SaleResponse;
+import com.hei.school.service.SaleService;
+import jakarta.validation.Valid;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/sales")
 @RequiredArgsConstructor

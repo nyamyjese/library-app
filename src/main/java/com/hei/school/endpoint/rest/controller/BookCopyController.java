@@ -13,45 +13,45 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/book-copies")
 public class BookCopyController {
 
-    private final BookCopyService bookCopyService;
+  private final BookCopyService bookCopyService;
 
-    @GetMapping
-    public List<BookCopyDTO> getAll() {
-        return bookCopyService.getAll();
-    }
+  @GetMapping
+  public List<BookCopyDTO> getAll() {
+    return bookCopyService.getAll();
+  }
 
-    @GetMapping("/{id}")
-    public BookCopyDTO getById(@PathVariable UUID id) {
-        return bookCopyService.getById(id);
-    }
+  @GetMapping("/{id}")
+  public BookCopyDTO getById(@PathVariable UUID id) {
+    return bookCopyService.getById(id);
+  }
 
-    @GetMapping("/available")
-    public List<BookCopyDTO> getAvailable() {
-        return bookCopyService.getAvailable();
-    }
+  @GetMapping("/available")
+  public List<BookCopyDTO> getAvailable() {
+    return bookCopyService.getAvailable();
+  }
 
-    @GetMapping(params = "bookId")
-    public List<BookCopyDTO> getByBook(@RequestParam UUID bookId) {
-        return bookCopyService.getByBook(bookId);
-    }
+  @GetMapping(params = "bookId")
+  public List<BookCopyDTO> getByBook(@RequestParam UUID bookId) {
+    return bookCopyService.getByBook(bookId);
+  }
 
-    @GetMapping(value = "/available", params = "bookId")
-    public List<BookCopyDTO> getAvailableByBook(@RequestParam UUID bookId) {
-        return bookCopyService.getAvailableByBook(bookId);
-    }
+  @GetMapping(value = "/available", params = "bookId")
+  public List<BookCopyDTO> getAvailableByBook(@RequestParam UUID bookId) {
+    return bookCopyService.getAvailableByBook(bookId);
+  }
 
-    @GetMapping(params = "libraryId")
-    public List<BookCopyDTO> getByLibrary(@RequestParam UUID libraryId) {
-        return bookCopyService.getByLibrary(libraryId);
-    }
+  @GetMapping(params = "libraryId")
+  public List<BookCopyDTO> getByLibrary(@RequestParam UUID libraryId) {
+    return bookCopyService.getByLibrary(libraryId);
+  }
 
-    @GetMapping("/count/available")
-    public long countAvailableByBook(@RequestParam UUID bookId) {
-        return bookCopyService.countAvailableByBook(bookId);
-    }
+  @GetMapping("/count/available")
+  public long countAvailableByBook(@RequestParam UUID bookId) {
+    return bookCopyService.countAvailableByBook(bookId);
+  }
 
-    @PatchMapping("/{id}/status")
-    public BookCopyDTO updateStatus(@PathVariable UUID id, @RequestParam BookCopyStatus status) {
-        return bookCopyService.updateStatus(id, status);
-    }
+  @PatchMapping("/{id}/status")
+  public BookCopyDTO updateStatus(@PathVariable UUID id, @RequestParam BookCopyStatus status) {
+    return bookCopyService.updateStatus(id, status);
+  }
 }

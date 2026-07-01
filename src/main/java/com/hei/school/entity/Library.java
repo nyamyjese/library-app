@@ -31,4 +31,7 @@ public class Library {
 
   @OneToMany(mappedBy = "library")
   private List<BookCopy> copies;
+
+  @OneToMany(mappedBy = "library")
+  private List<Sale> sales;
 }

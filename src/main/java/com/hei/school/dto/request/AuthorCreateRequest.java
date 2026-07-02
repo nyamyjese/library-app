@@ -1,7 +1,10 @@
 package com.hei.school.dto.request;
 
 import com.hei.school.entity.enums.Sexe;
-import java.time.Instant;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record AuthorCreateRequest(
-    String firstName, String lastName, Sexe sexe, Instant createdDate) {}
+    @NotBlank String firstName,
+    @NotBlank String lastName,
+    @NotNull Sexe sexe) {}

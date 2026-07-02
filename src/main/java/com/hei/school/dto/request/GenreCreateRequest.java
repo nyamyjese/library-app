@@ -1,3 +1,5 @@
 package com.hei.school.dto.request;
 
-public record GenreCreateRequest(String name) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record GenreCreateRequest(@NotBlank String name) {}

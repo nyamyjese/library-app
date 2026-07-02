@@ -16,6 +16,7 @@ import lombok.*;
 public class Author {
 
   @Id
+  @EqualsAndHashCode.Include
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
@@ -29,9 +30,18 @@ public class Author {
   @Builder.Default
   private Sexe sexe = Sexe.M;
 
-  @Column(name = "created", nullable = false)
-  @Builder.Default private Instant createdAt = Instant.now();
+  private Instant createdAt;
+  private Instant updatedAt;
 
-  @Column(name = "updated", nullable = false)
-  @Builder.Default private Instant updatedAt = Instant.now();
+  @PrePersist
+  public void prePersist() {
+      Instant now = Instant.now();
+      this.createdAt = now;
+      this.updatedAt = now;
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+      this.updatedAt = Instant.now();
+  }
 }

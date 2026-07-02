@@ -1,0 +1,1702 @@
+openapi: 3.0.3
+
+info:
+  title: Library App API
+  description: Simple API to manage libraries, books, book copies, arrivals, sales, stock, and customers.
+  version: 2.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+tags:
+  - name: Library
+    description: Manage libraries
+  - name: Book
+    description: Manage books
+  - name: Author
+    description: Manage authors
+  - name: Genre
+    description: Manage genres
+  - name: BookCopy
+    description: Manage book copies and stock
+  - name: Arrival
+    description: Manage arrivals
+  - name: Customer
+    description: Manage customers
+  - name: Sale
+    description: Manage sales
+  - name: StockMovement
+    description: Read stock movements
+  - name: Health
+    description: Check the API
+
+paths:
+
+  /ping:
+    get:
+      tags: [Health]
+      summary: Check if the server is running
+      responses:
+        '200':
+          description: Server is running
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+  /health/email:
+    get:
+      tags: [Health]
+      summary: Test email sending
+      parameters:
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Email was sent
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /libraries:
+    post:
+      tags: [Library]
+      summary: Create a library
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLibraryRequest'
+      responses:
+        '201':
+          description: Library created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Library]
+      summary: List all libraries
+      responses:
+        '200':
+          description: List of libraries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LibraryResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /libraries/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Library]
+      summary: Get a library by id
+      responses:
+        '200':
+          description: Library found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Library]
+      summary: Update a library
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLibraryRequest'
+      responses:
+        '200':
+          description: Library updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Library]
+      summary: Delete a library
+      responses:
+        '204':
+          description: Library deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /authors:
+    post:
+      tags: [Author]
+      summary: Create an author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthorRequest'
+      responses:
+        '201':
+          description: Author created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Author]
+      summary: List all authors
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /authors/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Author]
+      summary: Get an author by id
+      responses:
+        '200':
+          description: Author found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Author]
+      summary: Update an author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAuthorRequest'
+      responses:
+        '200':
+          description: Author updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Author]
+      summary: Delete an author
+      responses:
+        '204':
+          description: Author deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /genres:
+    post:
+      tags: [Genre]
+      summary: Create a genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGenreRequest'
+      responses:
+        '201':
+          description: Genre created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Genre]
+      summary: List all genres
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /genres/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Genre]
+      summary: Get a genre by id
+      responses:
+        '200':
+          description: Genre found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Genre]
+      summary: Update a genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGenreRequest'
+      responses:
+        '200':
+          description: Genre updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Genre]
+      summary: Delete a genre
+      responses:
+        '204':
+          description: Genre deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /books:
+    post:
+      tags: [Book]
+      summary: Create a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookRequest'
+      responses:
+        '201':
+          description: Book created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Book]
+      summary: List all books
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /books/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Book]
+      summary: Get a book by id
+      responses:
+        '200':
+          description: Book found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Book]
+      summary: Update a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookRequest'
+      responses:
+        '200':
+          description: Book updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Book]
+      summary: Delete a book
+      responses:
+        '204':
+          description: Book deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /books/{id}/authors:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    put:
+      tags: [Book]
+      summary: Set authors of a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignAuthorsRequest'
+      responses:
+        '200':
+          description: Authors set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /books/{id}/genres:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    put:
+      tags: [Book]
+      summary: Set genres of a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignGenresRequest'
+      responses:
+        '200':
+          description: Genres set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /book-copies:
+    post:
+      tags: [BookCopy]
+      summary: Create a book copy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookCopyRequest'
+      responses:
+        '201':
+          description: Book copy created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCopyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [BookCopy]
+      summary: List book copies
+      parameters:
+        - name: bookId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: libraryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/BookCopyStatus'
+      responses:
+        '200':
+          description: List of book copies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookCopyResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /book-copies/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [BookCopy]
+      summary: Get a book copy by id
+      responses:
+        '200':
+          description: Book copy found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCopyResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [BookCopy]
+      summary: Update a book copy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookCopyRequest'
+      responses:
+        '200':
+          description: Book copy updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCopyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [BookCopy]
+      summary: Delete a book copy
+      responses:
+        '204':
+          description: Book copy deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /book-copies/{bookCopyId}/stock:
+    parameters:
+      - name: bookCopyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      tags: [BookCopy]
+      summary: Get current stock of a book copy
+      responses:
+        '200':
+          description: Current stock of the book copy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookStockResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /arrivals:
+    post:
+      tags: [Arrival]
+      summary: Create an arrival
+      description: This adds stock automatically.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArrivalRequest'
+      responses:
+        '201':
+          description: Arrival created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrivalResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Arrival]
+      summary: List arrivals
+      parameters:
+        - name: bookCopyId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of arrivals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArrivalResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /arrivals/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Arrival]
+      summary: Get an arrival by id
+      responses:
+        '200':
+          description: Arrival found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrivalResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Arrival]
+      summary: Update an arrival
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArrivalRequest'
+      responses:
+        '200':
+          description: Arrival updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrivalResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Arrival]
+      summary: Delete an arrival
+      responses:
+        '204':
+          description: Arrival deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /customers:
+    post:
+      tags: [Customer]
+      summary: Create a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Customer]
+      summary: List all customers
+      responses:
+        '200':
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /customers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Customer]
+      summary: Get a customer by id
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Customer]
+      summary: Update a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerRequest'
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Customer]
+      summary: Delete a customer
+      responses:
+        '204':
+          description: Customer deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sales:
+    post:
+      tags: [Sale]
+      summary: Create a sale
+      description: This removes stock automatically.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSaleRequest'
+      responses:
+        '201':
+          description: Sale created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Sale]
+      summary: List sales
+      parameters:
+        - name: customerId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: libraryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SaleResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sales/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Sale]
+      summary: Get a sale by id
+      responses:
+        '200':
+          description: Sale found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Sale]
+      summary: Update a sale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSaleRequest'
+      responses:
+        '200':
+          description: Sale updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Sale]
+      summary: Delete a sale
+      responses:
+        '204':
+          description: Sale deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /stock-movements:
+    get:
+      tags: [StockMovement]
+      summary: List stock movements
+      parameters:
+        - name: bookCopyId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: movementType
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/MovementType'
+        - name: reason
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/MovementReason'
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of stock movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockMovementResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /stock-movements/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [StockMovement]
+      summary: Get a stock movement by id
+      responses:
+        '200':
+          description: Stock movement found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockMovementResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [StockMovement]
+      summary: Updating a stock movement is not allowed
+      responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags: [StockMovement]
+      summary: Deleting a stock movement is not allowed
+      responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExceptionBody'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExceptionBody'
+
+    Forbidden:
+      description: Action not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExceptionBody'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExceptionBody'
+
+  schemas:
+
+    ExceptionBody:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: Resource not found
+        path:
+          type: string
+          example: /libraries/00000000-0000-0000-0000-000000000000
+        timestamp:
+          type: string
+          format: date-time
+
+    BookCopyFormat:
+      type: string
+      enum:
+        - POCKET
+        - LARGE_FORMAT
+        - ILLUSTRATED
+        - COLLECTOR
+        - DIGITAL
+
+    BookCopyStatus:
+      type: string
+      enum:
+        - AVAILABLE
+        - UNAVAILABLE
+        - BORROWED
+        - RESERVED
+        - DAMAGED
+        - LOST
+
+    MovementType:
+      type: string
+      enum:
+        - IN
+        - OUT
+
+    MovementReason:
+      type: string
+      enum:
+        - ARRIVAL
+        - SALE
+        - RETURN
+        - DAMAGED
+        - LOST
+
+    CreateLibraryRequest:
+      type: object
+      required:
+        - name
+        - address
+        - phone
+      properties:
+        name:
+          type: string
+          example: Central Library
+        address:
+          type: string
+          example: Analakely, Antananarivo
+        phone:
+          type: string
+          example: "0341234567"
+
+    UpdateLibraryRequest:
+      type: object
+      required:
+        - name
+        - address
+        - phone
+      properties:
+        name:
+          type: string
+          example: Central Library Updated
+        address:
+          type: string
+          example: Analakely, Antananarivo
+        phone:
+          type: string
+          example: "0341234567"
+
+    LibraryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+
+    CreateAuthorRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+          example: Robert
+        lastName:
+          type: string
+          example: Martin
+
+    UpdateAuthorRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+          example: Robert C.
+        lastName:
+          type: string
+          example: Martin
+
+    AuthorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    CreateGenreRequest:
+      type: object
+      required:
+        - genreName
+      properties:
+        genreName:
+          type: string
+          example: Computer Science
+
+    UpdateGenreRequest:
+      type: object
+      required:
+        - genreName
+      properties:
+        genreName:
+          type: string
+          example: Computer Science and Programming
+
+    GenreResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        genreName:
+          type: string
+
+    CreateBookRequest:
+      type: object
+      required:
+        - title
+        - isbn
+        - publicationYear
+        - basePrice
+        - libraryId
+      properties:
+        title:
+          type: string
+          example: Clean Code
+        isbn:
+          type: string
+          minLength: 13
+          maxLength: 13
+          example: "9780132350884"
+        publicationYear:
+          type: integer
+          example: 2008
+        basePrice:
+          type: number
+          format: decimal
+          example: 45000
+        libraryId:
+          type: string
+          format: uuid
+
+    UpdateBookRequest:
+      type: object
+      required:
+        - title
+        - isbn
+        - publicationYear
+        - basePrice
+      properties:
+        title:
+          type: string
+          example: Clean Code Updated
+        isbn:
+          type: string
+          minLength: 13
+          maxLength: 13
+          example: "9780132350884"
+        publicationYear:
+          type: integer
+          example: 2008
+        basePrice:
+          type: number
+          format: decimal
+          example: 45000
+
+    AssignAuthorsRequest:
+      type: object
+      required:
+        - authorIds
+      properties:
+        authorIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    AssignGenresRequest:
+      type: object
+      required:
+        - genreIds
+      properties:
+        genreIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    BookResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        isbn:
+          type: string
+        publicationYear:
+          type: integer
+        basePrice:
+          type: number
+          format: decimal
+        libraryId:
+          type: string
+          format: uuid
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorResponse'
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/GenreResponse'
+
+    CreateBookCopyRequest:
+      type: object
+      required:
+        - bookId
+        - libraryId
+        - format
+        - isbn
+        - sellingPrice
+        - status
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        libraryId:
+          type: string
+          format: uuid
+        format:
+          $ref: '#/components/schemas/BookCopyFormat'
+        isbn:
+          type: string
+          minLength: 13
+          maxLength: 13
+          example: "9780132350885"
+        sellingPrice:
+          type: number
+          format: decimal
+          example: 50000
+        status:
+          $ref: '#/components/schemas/BookCopyStatus'
+
+    UpdateBookCopyRequest:
+      type: object
+      required:
+        - format
+        - sellingPrice
+        - status
+      properties:
+        format:
+          $ref: '#/components/schemas/BookCopyFormat'
+        sellingPrice:
+          type: number
+          format: decimal
+          example: 55000
+        status:
+          $ref: '#/components/schemas/BookCopyStatus'
+
+    BookCopyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        bookTitle:
+          type: string
+        libraryId:
+          type: string
+          format: uuid
+        libraryName:
+          type: string
+        format:
+          $ref: '#/components/schemas/BookCopyFormat'
+        isbn:
+          type: string
+        sellingPrice:
+          type: number
+          format: decimal
+        status:
+          $ref: '#/components/schemas/BookCopyStatus'
+
+    BookStockResponse:
+      type: object
+      properties:
+        bookCopyId:
+          type: string
+          format: uuid
+        bookTitle:
+          type: string
+          example: Clean Code
+        bookCopyIsbn:
+          type: string
+          example: "9780132350885"
+        totalIn:
+          type: integer
+          example: 80
+        totalOut:
+          type: integer
+          example: 8
+        currentStock:
+          type: integer
+          example: 72
+
+    CreateArrivalRequest:
+      type: object
+      required:
+        - bookCopyId
+        - quantity
+        - unitPrice
+        - arrivalDate
+      properties:
+        bookCopyId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          example: 50
+        unitPrice:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 40000
+        arrivalDate:
+          type: string
+          format: date-time
+          example: "2024-01-15T08:00:00Z"
+
+    UpdateArrivalRequest:
+      type: object
+      required:
+        - quantity
+        - unitPrice
+        - arrivalDate
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+          example: 30
+        unitPrice:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 42000
+        arrivalDate:
+          type: string
+          format: date-time
+          example: "2024-02-01T09:00:00Z"
+
+    ArrivalResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        bookCopyId:
+          type: string
+          format: uuid
+        bookTitle:
+          type: string
+        bookCopyIsbn:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: decimal
+        totalPrice:
+          type: number
+          format: decimal
+        arrivalDate:
+          type: string
+          format: date-time
+
+    CreateCustomerRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - phone
+      properties:
+        firstName:
+          type: string
+          example: Rakoto
+        lastName:
+          type: string
+          example: Andriantsoa
+        email:
+          type: string
+          format: email
+          example: rakoto@gmail.com
+        phone:
+          type: string
+          example: "0341112233"
+
+    UpdateCustomerRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - phone
+      properties:
+        firstName:
+          type: string
+          example: Rakoto
+        lastName:
+          type: string
+          example: Andriantsoa
+        email:
+          type: string
+          format: email
+          example: rakoto.updated@gmail.com
+        phone:
+          type: string
+          example: "0341112233"
+
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateSaleItemRequest:
+      type: object
+      required:
+        - bookCopyId
+        - quantity
+        - unitPrice
+      properties:
+        bookCopyId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          example: 3
+        unitPrice:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 55000
+
+    CreateSaleRequest:
+      type: object
+      required:
+        - customerId
+        - libraryId
+        - saleDate
+        - saleItems
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        libraryId:
+          type: string
+          format: uuid
+        saleDate:
+          type: string
+          format: date-time
+          example: "2024-03-01T10:00:00Z"
+        saleItems:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreateSaleItemRequest'
+
+    UpdateSaleRequest:
+      type: object
+      required:
+        - saleDate
+        - saleItems
+      properties:
+        saleDate:
+          type: string
+          format: date-time
+          example: "2024-03-01T10:00:00Z"
+        saleItems:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreateSaleItemRequest'
+
+    SaleItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        bookCopyId:
+          type: string
+          format: uuid
+        bookTitle:
+          type: string
+        bookCopyIsbn:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          format: decimal
+        totalPrice:
+          type: number
+          format: decimal
+
+    SaleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        customerFirstName:
+          type: string
+        customerLastName:
+          type: string
+        libraryId:
+          type: string
+          format: uuid
+        libraryName:
+          type: string
+        saleDate:
+          type: string
+          format: date-time
+        totalAmount:
+          type: number
+          format: decimal
+        saleItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleItemResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    StockMovementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+        movementType:
+          $ref: '#/components/schemas/MovementType'
+        reason:
+          $ref: '#/components/schemas/MovementReason'
+        bookCopyId:
+          type: string
+          format: uuid
+        bookTitle:
+          type: string
+        bookCopyIsbn:
+          type: string
+        arrivalId:
+          type: string
+          format: uuid
+          nullable: true
+        saleItemId:
+          type: string
+          format: uuid
+          nullable: true
+        movementDate:
+          type: string
+          format: date-time

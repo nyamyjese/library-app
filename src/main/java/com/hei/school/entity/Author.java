@@ -17,7 +17,7 @@ public class Author {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID idAuthor;
+  private UUID id;
 
   @Column(name = "first_name", nullable = false, length = 100)
   private String firstName;
@@ -29,7 +29,9 @@ public class Author {
   @Builder.Default
   private Sexe sexe = Sexe.M;
 
-  @Builder.Default private Instant createdDate = Instant.now();
+  @Column(name = "created", nullable = false)
+  @Builder.Default private Instant createdAt = Instant.now();
 
-  @Builder.Default private Instant updatedDate = Instant.now();
+  @Column(name = "updated", nullable = false)
+  @Builder.Default private Instant updatedAt = Instant.now();
 }

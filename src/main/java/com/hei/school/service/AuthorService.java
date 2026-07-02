@@ -4,120 +4,120 @@ import com.hei.school.dto.request.AuthorCreateRequest;
 import com.hei.school.dto.request.AuthorUpdateRequest;
 import com.hei.school.dto.response.AuthorResponse;
 import com.hei.school.entity.Author;
-import com.hei.school.entity.BookAuthor;
+import com.hei.school.entity.Book;
 import com.hei.school.repository.AuthorRepository;
-import com.hei.school.repository.BookAuthorRepository;
 import com.hei.school.repository.BookRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
 
   private final AuthorRepository authorRepository;
-  private final BookAuthorRepository bookAuthorRepository;
   private final BookRepository bookRepository;
 
   @Transactional
-  public AuthorResponse createAuthor(AuthorCreateRequest request) {
+  public AuthorResponse create(AuthorCreateRequest request) {
     Author author =
-        Author.builder().firstName(request.firstName()).lastName(request.lastName()).build();
-    Author saved = authorRepository.save(author);
-    return toResponse(saved);
+        Author.builder()
+            .firstName(request.firstName())
+            .lastName(request.lastName())
+            .sexe(request.sexe())
+            .build();
+    return toResponse(authorRepository.save(author));
   }
 
   @Transactional
-  public AuthorResponse updateAuthor(AuthorUpdateRequest request) {
+  public AuthorResponse update(UUID id, AuthorUpdateRequest request) {
     Author author =
         authorRepository
-            .findById(request.id())
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + id));
     author.setFirstName(request.firstName());
     author.setLastName(request.lastName());
-    Author updated = authorRepository.save(author);
-    return toResponse(updated);
+    return toResponse(authorRepository.save(author));
   }
 
   @Transactional
-  public void deleteAuthor(UUID authorId) {
-    if (!authorRepository.existsById(authorId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
+  public void delete(UUID id) {
+    if (!authorRepository.existsById(id)) {
+      throw new EntityNotFoundException("Author not found: " + id);
     }
-    List<BookAuthor> associations = bookAuthorRepository.findByAuthorId(authorId);
-    bookAuthorRepository.deleteAll(associations);
-    authorRepository.deleteById(authorId);
+    authorRepository.deleteById(id);
   }
 
-  public AuthorResponse getAuthorById(UUID authorId) {
-    Author author =
-        authorRepository
-            .findById(authorId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
-    return toResponse(author);
+  public AuthorResponse getById(UUID id) {
+    return authorRepository
+        .findById(id)
+        .map(this::toResponse)
+        .orElseThrow(() -> new EntityNotFoundException("Author not found: " + id));
   }
 
-  public List<AuthorResponse> getAllAuthors() {
-    return authorRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+  public List<AuthorResponse> getAll() {
+    return authorRepository.findAll().stream().map(this::toResponse).toList();
   }
 
-  public List<AuthorResponse> searchAuthorsByLastName(String lastName) {
+  public List<AuthorResponse> searchByLastName(String lastName) {
     return authorRepository.findByLastNameContainingIgnoreCase(lastName).stream()
         .map(this::toResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Transactional
   public void addAuthorToBook(UUID bookId, UUID authorId) {
-    if (!authorRepository.existsById(authorId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
-    }
+    Book book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+    Author author =
+        authorRepository
+            .findById(authorId)
+            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + authorId));
 
-    if (!bookRepository.existsById(bookId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
+    if (!book.getAuthors().contains(author)) {
+      book.getAuthors().add(author);
+      bookRepository.save(book);
     }
-
-    if (bookAuthorRepository.existsByBookIdAndAuthorId(bookId, authorId)) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Association already exists");
-    }
-    BookAuthor ba =
-        BookAuthor.builder()
-            .bookId(bookId)
-            .author(authorRepository.getReferenceById(authorId))
-            .build();
-    bookAuthorRepository.save(ba);
   }
 
   @Transactional
   public void removeAuthorFromBook(UUID bookId, UUID authorId) {
-    if (!bookAuthorRepository.existsByBookIdAndAuthorId(bookId, authorId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Association not found");
+    Book book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+    Author author =
+        authorRepository
+            .findById(authorId)
+            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + authorId));
+
+    if (book.getAuthors().remove(author)) {
+      bookRepository.save(book);
+    } else {
+      throw new EntityNotFoundException(
+          "Association not found for book " + bookId + " and author " + authorId);
     }
-    bookAuthorRepository.deleteByBookIdAndAuthorId(bookId, authorId);
   }
 
   public List<AuthorResponse> getAuthorsByBook(UUID bookId) {
-    List<BookAuthor> bookAuthors = bookAuthorRepository.findByBookIdWithAuthor(bookId);
-    return bookAuthors.stream().map(ba -> toResponse(ba.getAuthor())).collect(Collectors.toList());
+    Book book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+    return book.getAuthors().stream().map(this::toResponse).toList();
   }
 
   public List<UUID> getBooksByAuthor(UUID authorId) {
-    if (!authorRepository.existsById(authorId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
-    }
-    List<BookAuthor> associations = bookAuthorRepository.findByAuthorId(authorId);
-    return associations.stream().map(BookAuthor::getBookId).collect(Collectors.toList());
+    return bookRepository.findBookIdsByAuthorId(authorId);
   }
 
   private AuthorResponse toResponse(Author author) {
-    return new AuthorResponse(author.getIdAuthor(), author.getFirstName(), author.getLastName());
+    return new AuthorResponse(
+        author.getId(), author.getFirstName(), author.getLastName(), author.getSexe());
   }
 }

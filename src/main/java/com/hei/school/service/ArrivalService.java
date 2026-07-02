@@ -31,7 +31,6 @@ public class ArrivalService {
             .orElseThrow(
                 () -> new RuntimeException("BookCopy not found: id=" + request.bookCopyId()));
 
-    // Met le BookCopy en AVAILABLE après arrivage
     bookCopy.setStatus(BookCopyStatus.AVAILABLE);
     bookCopyRepository.save(bookCopy);
 

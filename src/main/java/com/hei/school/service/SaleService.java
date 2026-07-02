@@ -44,10 +44,8 @@ public class SaleService {
                 () ->
                     new NotFoundException("Library with id " + request.libraryId() + " not found"));
 
-    // Save the sale without items
     Sale sale = saleMapper.toEntity(request, customer, library);
 
-    // Create sale items and calculate total
     List<SaleItem> saleItems =
         request.saleItems().stream()
             .map(
@@ -67,7 +65,6 @@ public class SaleService {
 
     saleItems.forEach(sale.getSaleItems()::add);
 
-    // Calculate and update totalAmount
     BigDecimal totalAmount =
         saleItems.stream()
             .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
@@ -117,7 +114,6 @@ public class SaleService {
     saleItemRepository.deleteBySaleId(id);
     sale.getSaleItems().clear();
 
-    // Recreate new items
     List<SaleItem> saleItems =
         request.saleItems().stream()
             .map(
@@ -139,7 +135,6 @@ public class SaleService {
 
     saleItemRepository.saveAll(saleItems);
 
-    // Recalculate totalAmount
     BigDecimal totalAmount =
         saleItems.stream()
             .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))

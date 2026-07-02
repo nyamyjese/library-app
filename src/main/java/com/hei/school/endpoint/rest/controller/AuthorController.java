@@ -1,6 +1,7 @@
 package com.hei.school.endpoint.rest.controller;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.hei.school.dto.request.AuthorCreateRequest;
 import com.hei.school.dto.request.AuthorUpdateRequest;
 import com.hei.school.dto.response.AuthorResponse;
@@ -79,6 +80,3 @@ public class AuthorController {
     return ResponseEntity.ok(authorService.getBooksByAuthor(authorId));
   }
 }
-=======
-public class AuthorController {}
->>>>>>> feat/bookCopy

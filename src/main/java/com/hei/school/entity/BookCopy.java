@@ -16,30 +16,30 @@ import lombok.*;
 @Builder
 public class BookCopy {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "id")
+  private UUID id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "format", nullable = false, length = 50)
-    private BookCopyFormat format;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "format", nullable = false, length = 50)
+  private BookCopyFormat format;
 
-    @Column(name = "isbn", length = 13, unique = true)
-    private String isbn;
+  @Column(name = "isbn", length = 13, unique = true)
+  private String isbn;
 
-    @Column(name = "selling_price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal sellingPrice;
+  @Column(name = "selling_price", nullable = false, precision = 10, scale = 2)
+  private BigDecimal sellingPrice;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private BookCopyStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private BookCopyStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
+  @ManyToOne
+  @JoinColumn(name = "book_id", nullable = false)
+  private Book book;
 
-    @ManyToOne
-    @JoinColumn(name = "livrary_id", nullable = false)
-    private Library library;
+  @ManyToOne
+  @JoinColumn(name = "livrary_id", nullable = false)
+  private Library library;
 }

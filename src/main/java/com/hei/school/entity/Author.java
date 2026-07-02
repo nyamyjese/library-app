@@ -35,13 +35,13 @@ public class Author {
 
   @PrePersist
   public void prePersist() {
-      Instant now = Instant.now();
-      this.createdAt = now;
-      this.updatedAt = now;
+    Instant now = Instant.now();
+    this.createdAt = now;
+    this.updatedAt = now;
   }
 
   @PreUpdate
   public void preUpdate() {
-      this.updatedAt = Instant.now();
+    this.updatedAt = Instant.now();
   }
 }

@@ -47,15 +47,13 @@ public class Book {
   @JoinTable(
       name = "book_author",
       joinColumns = @JoinColumn(name = "book_id"),
-      inverseJoinColumns = @JoinColumn(name = "author_id")
-  )
+      inverseJoinColumns = @JoinColumn(name = "author_id"))
   private List<Author> authors;
 
   @ManyToMany
   @JoinTable(
       name = "book_genre",
       joinColumns = @JoinColumn(name = "book_id"),
-      inverseJoinColumns = @JoinColumn(name = "genre_id")
-  )
+      inverseJoinColumns = @JoinColumn(name = "genre_id"))
   private List<Genre> genres;
 }

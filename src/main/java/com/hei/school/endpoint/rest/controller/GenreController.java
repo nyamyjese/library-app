@@ -1,5 +1,6 @@
 package com.hei.school.endpoint.rest.controller;
 
+<<<<<<< HEAD
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
@@ -76,3 +77,6 @@ public class GenreController {
     return ResponseEntity.ok(genreService.getBooksByGenre(genreId));
   }
 }
+=======
+public class GenreController {}
+>>>>>>> feat/bookCopy

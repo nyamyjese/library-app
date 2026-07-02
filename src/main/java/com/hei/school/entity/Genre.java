@@ -13,6 +13,7 @@ import lombok.*;
 @Builder
 public class Genre {
   @Id
+  @EqualsAndHashCode.Include
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 

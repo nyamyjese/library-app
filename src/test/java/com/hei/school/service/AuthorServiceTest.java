@@ -128,7 +128,7 @@ class AuthorServiceTest {
   void testGetBooksByAuthor_Success() {
     // 1. L'auteur doit être associé au livre pour passer le filtre .contains(author)
     book.getAuthors().add(author);
-    
+
     // 2. Mocker le comportement réel utilisé dans AuthorService
     when(authorRepository.findById(authorId)).thenReturn(Optional.of(author));
     when(bookRepository.findAll()).thenReturn(List.of(book));

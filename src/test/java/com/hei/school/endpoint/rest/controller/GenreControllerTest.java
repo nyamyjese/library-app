@@ -58,7 +58,8 @@ class GenreControllerTest {
 
   @Test
   void testUpdateGenre() throws Exception {
-    when(genreService.updateGenre(eq(genreId), any(GenreUpdateRequest.class))).thenReturn(genreResponse);
+    when(genreService.updateGenre(eq(genreId), any(GenreUpdateRequest.class)))
+        .thenReturn(genreResponse);
 
     mockMvc
         .perform(

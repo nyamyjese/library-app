@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+.env
+
+>>>>>>> feat/author
 HELP.md
 .gradle
 build/
@@ -40,4 +45,4 @@ out/
 **.toml
 
 ### Mac OS ###
-.DS_Store
+.DS_Storedigest.txt

@@ -113,7 +113,15 @@ public class AuthorService {
   }
 
   public List<UUID> getBooksByAuthor(UUID authorId) {
-    return bookRepository.findBookIdsByAuthorId(authorId);
+    Author author =
+        authorRepository
+            .findById(authorId)
+            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + authorId));
+
+    return bookRepository.findAll().stream()
+        .filter(book -> book.getAuthors().contains(author))
+        .map(Book::getId)
+        .toList();
   }
 
   private AuthorResponse toResponse(Author author) {

@@ -25,9 +25,10 @@ public class GenreController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @PutMapping
-  public ResponseEntity<GenreResponse> updateGenre(@Valid @RequestBody GenreUpdateRequest request) {
-    GenreResponse response = genreService.updateGenre(request);
+  @PutMapping("/{genreId}")
+  public ResponseEntity<GenreResponse> updateGenre(
+      @PathVariable UUID genreId, @Valid @RequestBody GenreUpdateRequest request) {
+    GenreResponse response = genreService.updateGenre(genreId, request);
     return ResponseEntity.ok(response);
   }
 

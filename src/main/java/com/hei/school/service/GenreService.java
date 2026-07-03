@@ -3,14 +3,13 @@ package com.hei.school.service;
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
-import com.hei.school.entity.BookGenre;
+import com.hei.school.entity.Book;
 import com.hei.school.entity.Genre;
-import com.hei.school.repository.BookGenreRepository;
 import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.GenreRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class GenreService {
 
   private final GenreRepository genreRepository;
-  private final BookGenreRepository bookGenreRepository;
   private final BookRepository bookRepository;
 
   @Transactional
@@ -33,25 +31,24 @@ public class GenreService {
   }
 
   @Transactional
-  public GenreResponse updateGenre(GenreUpdateRequest request) {
+  public GenreResponse updateGenre(UUID id, GenreUpdateRequest request) {
     Genre genre =
         genreRepository
-            .findById(request.id())
+            .findById(id)
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
     genre.setName(request.name());
-    Genre updated = genreRepository.save(genre);
-    return mapToResponse(updated);
+    return mapToResponse(genreRepository.save(genre));
   }
 
   @Transactional
   public void deleteGenre(UUID genreId) {
-    if (!genreRepository.existsById(genreId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found");
-    }
-    List<BookGenre> associations = bookGenreRepository.findByGenreId(genreId);
-    bookGenreRepository.deleteAll(associations);
-    genreRepository.deleteById(genreId);
+    Genre genre =
+        genreRepository
+            .findById(genreId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+    genreRepository.delete(genre);
   }
 
   public GenreResponse getGenreById(UUID genreId) {
@@ -64,54 +61,80 @@ public class GenreService {
   }
 
   public List<GenreResponse> getAllGenres() {
-    return genreRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+    return genreRepository.findAll().stream().map(this::mapToResponse).toList();
   }
 
   public List<GenreResponse> searchGenresByName(String name) {
     return genreRepository.findByNameContainingIgnoreCase(name).stream()
         .map(this::mapToResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Transactional
   public void addGenreToBook(UUID bookId, UUID genreId) {
-    if (!genreRepository.existsById(genreId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found");
-    }
-    if (!bookRepository.existsById(bookId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
+    Book book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+    Genre genre =
+        genreRepository
+            .findById(genreId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+
+    if (book.getGenres() == null) {
+      book.setGenres(new ArrayList<>());
     }
 
-    if (bookGenreRepository.existsByBookIdAndGenreId(bookId, genreId)) {
+    if (book.getGenres().contains(genre)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Association already exists");
     }
-    BookGenre bookGenre =
-        BookGenre.builder().bookId(bookId).genre(genreRepository.getReferenceById(genreId)).build();
-    bookGenreRepository.save(bookGenre);
+
+    book.getGenres().add(genre);
+    bookRepository.save(book);
   }
 
   @Transactional
   public void removeGenreFromBook(UUID bookId, UUID genreId) {
-    if (!bookGenreRepository.existsByBookIdAndGenreId(bookId, genreId)) {
+    Book book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+    Genre genre =
+        genreRepository
+            .findById(genreId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+
+    if (book.getGenres() == null || !book.getGenres().remove(genre)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Association not found");
     }
-    bookGenreRepository.deleteByBookIdAndGenreId(bookId, genreId);
+    bookRepository.save(book);
   }
 
   public List<GenreResponse> getGenresByBook(UUID bookId) {
-    List<BookGenre> bookGenres = bookGenreRepository.findByBookIdWithGenre(bookId);
-    return bookGenres.stream()
-        .map(BookGenre::getGenre)
-        .map(this::mapToResponse)
-        .collect(Collectors.toList());
+    Book book =
+        bookRepository
+            .findById(bookId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+
+    if (book.getGenres() == null) {
+      return List.of();
+    }
+    return book.getGenres().stream().map(this::mapToResponse).toList();
   }
 
   public List<UUID> getBooksByGenre(UUID genreId) {
     if (!genreRepository.existsById(genreId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found");
     }
-    List<BookGenre> bookGenres = bookGenreRepository.findByGenreId(genreId);
-    return bookGenres.stream().map(BookGenre::getBookId).collect(Collectors.toList());
+    return bookRepository.findAll().stream()
+        .filter(
+            book ->
+                book.getGenres() != null
+                    && book.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)))
+        .map(Book::getId)
+        .toList();
   }
 
   private GenreResponse mapToResponse(Genre genre) {

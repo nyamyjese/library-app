@@ -2,6 +2,7 @@ package com.hei.school.endpoint.rest.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -24,7 +25,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
-@WebMvcTest(GenreController.class)
+// Isolation complète du contrôleur vis-à-vis du scanner global
+@WebMvcTest(controllers = GenreController.class, useDefaultFilters = false)
 class GenreControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -38,8 +40,7 @@ class GenreControllerTest {
 
   private final GenreResponse genreResponse = new GenreResponse(genreId, "Fantasy");
   private final GenreCreateRequest createRequest = new GenreCreateRequest("Science Fiction");
-  private final GenreUpdateRequest updateRequest =
-      new GenreUpdateRequest(genreId, "Fantasy Updated");
+  private final GenreUpdateRequest updateRequest = new GenreUpdateRequest("Fantasy Updated");
 
   @Test
   void testCreateGenre() throws Exception {
@@ -57,11 +58,11 @@ class GenreControllerTest {
 
   @Test
   void testUpdateGenre() throws Exception {
-    when(genreService.updateGenre(any(GenreUpdateRequest.class))).thenReturn(genreResponse);
+    when(genreService.updateGenre(eq(genreId), any(GenreUpdateRequest.class))).thenReturn(genreResponse);
 
     mockMvc
         .perform(
-            put("/api/genres")
+            put("/api/genres/{genreId}", genreId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isOk())
@@ -70,12 +71,12 @@ class GenreControllerTest {
 
   @Test
   void testUpdateGenre_NotFound() throws Exception {
-    when(genreService.updateGenre(any(GenreUpdateRequest.class)))
+    when(genreService.updateGenre(eq(genreId), any(GenreUpdateRequest.class)))
         .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
 
     mockMvc
         .perform(
-            put("/api/genres")
+            put("/api/genres/{genreId}", genreId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isNotFound());

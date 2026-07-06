@@ -103,7 +103,7 @@ public class BookService {
     dto.setIsbn(book.getIsbn());
     dto.setPublicationYear(book.getPublicationYear());
     dto.setPrice(book.getPrice());
-    dto.setLibraryId(book.getLibrary().getLibraryId());
+    dto.setLibraryId(book.getLibrary().getId());
     return dto;
   }
 }

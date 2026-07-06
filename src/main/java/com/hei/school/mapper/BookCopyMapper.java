@@ -11,7 +11,7 @@ public class BookCopyMapper {
     return BookCopyDTO.builder()
         .id(c.getId())
         .bookId(c.getBook() != null ? c.getBook().getId() : null)
-        .libraryId(c.getLibrary() != null ? c.getLibrary().getLibraryId() : null)
+        .libraryId(c.getLibrary() != null ? c.getLibrary().getId() : null)
         .format(c.getFormat())
         .isbn(c.getIsbn())
         .sellingPrice(c.getSellingPrice())

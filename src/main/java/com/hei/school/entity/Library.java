@@ -18,7 +18,7 @@ import lombok.Setter;
 public class Library {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID libraryId;
+  private UUID id;
 
   @Column(nullable = false)
   private String name;
@@ -31,4 +31,7 @@ public class Library {
 
   @OneToMany(mappedBy = "library")
   private List<BookCopy> copies;
+
+  @OneToMany(mappedBy = "library")
+  private List<Sale> sales;
 }

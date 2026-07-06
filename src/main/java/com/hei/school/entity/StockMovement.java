@@ -17,38 +17,38 @@ import lombok.*;
 @NoArgsConstructor
 public class StockMovement {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @NotNull(message = "The quantity is mandatory")
-    @Positive(message = "Quantity must be positive")
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
+  @NotNull(message = "The quantity is mandatory")
+  @Positive(message = "Quantity must be positive")
+  @Column(name = "quantity", nullable = false)
+  private Integer quantity;
 
-    @NotNull(message = "The movement type is mandatory")
-    @Enumerated(EnumType.STRING)
-    @Column(name = "movement_type", nullable = false)
-    private MovementType movementType;
+  @NotNull(message = "The movement type is mandatory")
+  @Enumerated(EnumType.STRING)
+  @Column(name = "movement_type", nullable = false)
+  private MovementType movementType;
 
-    @NotNull(message = "The reason is mandatory")
-    @Enumerated(EnumType.STRING)
-    @Column(name = "reason", nullable = false)
-    private MovementReason reason;
+  @NotNull(message = "The reason is mandatory")
+  @Enumerated(EnumType.STRING)
+  @Column(name = "reason", nullable = false)
+  private MovementReason reason;
 
-    @ManyToOne
-    @JoinColumn(name = "book_copy_id", nullable = false)
-    private BookCopy bookCopy;
+  @ManyToOne
+  @JoinColumn(name = "book_copy_id", nullable = false)
+  private BookCopy bookCopy;
 
-    @ManyToOne
-    @JoinColumn(name = "arrival_id", nullable = true)
-    private Arrival arrival;
+  @ManyToOne
+  @JoinColumn(name = "arrival_id", nullable = true)
+  private Arrival arrival;
 
-    @ManyToOne
-    @JoinColumn(name = "sale_item_id", nullable = true)
-    private SaleItem saleItem;
+  @ManyToOne
+  @JoinColumn(name = "sale_item_id", nullable = true)
+  private SaleItem saleItem;
 
-    @NotNull(message = "The movement date is mandatory")
-    @Column(name = "movement_date", nullable = false)
-    private Instant movementDate;
+  @NotNull(message = "The movement date is mandatory")
+  @Column(name = "movement_date", nullable = false)
+  private Instant movementDate;
 }

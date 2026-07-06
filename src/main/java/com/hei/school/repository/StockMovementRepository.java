@@ -11,11 +11,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StockMovementRepository extends JpaRepository<StockMovement, UUID> {
 
-    List<StockMovement> findAllByBookCopy_Id(UUID bookCopyId);
+  List<StockMovement> findAllByBookCopy_Id(UUID bookCopyId);
 
-    List<StockMovement> findAllByMovementType(MovementType movementType);
+  List<StockMovement> findAllByMovementType(MovementType movementType);
 
-    List<StockMovement> findAllByReason(MovementReason reason);
+  List<StockMovement> findAllByReason(MovementReason reason);
 
-    List<StockMovement> findAllByArrival_Id(UUID arrivalId);
+  List<StockMovement> findAllByArrival_Id(UUID arrivalId);
 }

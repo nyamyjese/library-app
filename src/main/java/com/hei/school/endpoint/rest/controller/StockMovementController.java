@@ -14,42 +14,41 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stock-movements")
 public class StockMovementController {
 
-    private final StockMovementService stockMovementService;
+  private final StockMovementService stockMovementService;
 
-    @PostMapping("/arrival")
-    public StockMovementResponse recordArrivalMovement(
-            @RequestParam UUID bookCopyId,
-            @RequestParam UUID arrivalId) {
-        return stockMovementService.recordArrivalMovement(bookCopyId, arrivalId);
-    }
+  @PostMapping("/arrival")
+  public StockMovementResponse recordArrivalMovement(
+      @RequestParam UUID bookCopyId, @RequestParam UUID arrivalId) {
+    return stockMovementService.recordArrivalMovement(bookCopyId, arrivalId);
+  }
 
-    @GetMapping
-    public List<StockMovementResponse> getAll() {
-        return stockMovementService.getAll();
-    }
+  @GetMapping
+  public List<StockMovementResponse> getAll() {
+    return stockMovementService.getAll();
+  }
 
-    @GetMapping("/{id}")
-    public StockMovementResponse getById(@PathVariable UUID id) {
-        return stockMovementService.getById(id);
-    }
+  @GetMapping("/{id}")
+  public StockMovementResponse getById(@PathVariable UUID id) {
+    return stockMovementService.getById(id);
+  }
 
-    @GetMapping(params = "bookCopyId")
-    public List<StockMovementResponse> getByBookCopyId(@RequestParam UUID bookCopyId) {
-        return stockMovementService.getByBookCopyId(bookCopyId);
-    }
+  @GetMapping(params = "bookCopyId")
+  public List<StockMovementResponse> getByBookCopyId(@RequestParam UUID bookCopyId) {
+    return stockMovementService.getByBookCopyId(bookCopyId);
+  }
 
-    @GetMapping(params = "arrivalId")
-    public List<StockMovementResponse> getByArrivalId(@RequestParam UUID arrivalId) {
-        return stockMovementService.getByArrivalId(arrivalId);
-    }
+  @GetMapping(params = "arrivalId")
+  public List<StockMovementResponse> getByArrivalId(@RequestParam UUID arrivalId) {
+    return stockMovementService.getByArrivalId(arrivalId);
+  }
 
-    @GetMapping(params = "movementType")
-    public List<StockMovementResponse> getByMovementType(@RequestParam MovementType movementType) {
-        return stockMovementService.getByMovementType(movementType);
-    }
+  @GetMapping(params = "movementType")
+  public List<StockMovementResponse> getByMovementType(@RequestParam MovementType movementType) {
+    return stockMovementService.getByMovementType(movementType);
+  }
 
-    @GetMapping(params = "reason")
-    public List<StockMovementResponse> getByReason(@RequestParam MovementReason reason) {
-        return stockMovementService.getByReason(reason);
-    }
+  @GetMapping(params = "reason")
+  public List<StockMovementResponse> getByReason(@RequestParam MovementReason reason) {
+    return stockMovementService.getByReason(reason);
+  }
 }

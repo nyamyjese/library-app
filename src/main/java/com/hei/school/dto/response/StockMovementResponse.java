@@ -6,13 +6,13 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record StockMovementResponse(
-        UUID id,
-        Integer quantity,
-        MovementType movementType,
-        MovementReason reason,
-        UUID bookCopyId,
-        String bookTitle,
-        String bookCopyIsbn,
-        UUID arrivalId,
-        UUID saleItemId,
-        Instant movementDate) {}
+    UUID id,
+    Integer quantity,
+    MovementType movementType,
+    MovementReason reason,
+    UUID bookCopyId,
+    String bookTitle,
+    String bookCopyIsbn,
+    UUID arrivalId,
+    UUID saleItemId,
+    Instant movementDate) {}

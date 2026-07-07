@@ -3,7 +3,7 @@ openapi: 3.0.3
 info:
   title: Library App API
   description: Simple API to manage libraries, books, book copies, arrivals, sales, stock, and customers.
-  version: 2.0.0
+  version: 1.0.0
 
 servers:
   - url: http://localhost:8080
@@ -333,6 +333,31 @@ paths:
       responses:
         '204':
           description: Genre deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /genres/{genreId}/revenue:
+    parameters:
+      - name: genreId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      tags: [Genre]
+      summary: Get revenue for a genre
+      description: Calculate revenue from sold books that contain the selected genre.
+      responses:
+        '200':
+          description: Genre revenue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreRevenueResponse'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -1221,6 +1246,20 @@ components:
           format: uuid
         genreName:
           type: string
+
+    GenreRevenueResponse:
+      type: object
+      properties:
+        genreId:
+          type: string
+          format: uuid
+        genreName:
+          type: string
+          example: Computer Science
+        revenue:
+          type: number
+          format: decimal
+          example: 515000
 
     CreateBookRequest:
       type: object

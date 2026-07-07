@@ -1,40 +1,43 @@
 openapi: 3.0.3
+
 info:
   title: Library App API
+  description: Simple API to manage libraries, books, authors, genres, book copies, arrivals, customers, and sales.
   version: 1.0.0
-  description: |
-    REST API for managing a library business: books, libraries, book copies,
-    stock arrivals, customers and sales.
+
 servers:
   - url: http://localhost:8080
-    description: Local development server
+    description: Local server
 
 tags:
   - name: Health
-    description: Health check endpoints.
-  - name: Books
-    description: Operations for managing books.
-  - name: Libraries
-    description: Operations for managing libraries.
-  - name: Book copies
-    description: Operations for managing physical or digital copies of books.
-  - name: Arrivals
-    description: Operations for managing stock arrivals.
-  - name: Customers
-    description: Operations for managing customers.
-  - name: Sales
-    description: Operations for managing sales and sale items.
+    description: Check the API
+  - name: Book
+    description: Manage books
+  - name: Author
+    description: Manage authors
+  - name: Genre
+    description: Manage genres
+  - name: Library
+    description: Manage libraries
+  - name: BookCopy
+    description: Read and manage book copy status
+  - name: Arrival
+    description: Manage arrivals
+  - name: Customer
+    description: Manage customers
+  - name: Sale
+    description: Manage sales
 
 paths:
+
   /ping:
     get:
       tags: [Health]
-      summary: Check API availability
-      description: Returns a simple response to confirm that the API is running.
-      operationId: ping
+      summary: Check if the server is running
       responses:
         '200':
-          description: API is running.
+          description: Server is running
           content:
             text/plain:
               schema:
@@ -44,523 +47,841 @@ paths:
   /health/email:
     get:
       tags: [Health]
-      summary: Send health check emails
-      description: Sends a set of health check emails to verify the email delivery configuration.
-      operationId: sendHealthEmails
+      summary: Test email sending
       parameters:
         - name: to
           in: query
           required: true
-          description: Recipient email address used for the health check.
           schema:
             type: string
             format: email
             example: user@example.com
       responses:
         '200':
-          description: Health emails were requested successfully.
+          description: Email was sent
           content:
             text/plain:
               schema:
                 type: string
                 example: OK
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books:
     get:
-      tags: [Books]
-      summary: List books
-      description: Returns all books registered in the system.
-      operationId: getBooks
+      tags: [Book]
+      summary: List all books
       responses:
         '200':
-          description: List of books.
+          description: List of books
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     post:
-      tags: [Books]
+      tags: [Book]
       summary: Create a book
-      description: Creates a new book and attaches it to a library.
-      operationId: createBook
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookInput'
+              $ref: '#/components/schemas/BookRequest'
       responses:
         '201':
-          description: Book created successfully.
+          description: Book created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
     get:
-      tags: [Books]
+      tags: [Book]
       summary: Get a book by id
-      description: Returns a single book by its unique identifier.
-      operationId: getBookById
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
-          description: Book found.
+          description: Book found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     put:
-      tags: [Books]
+      tags: [Book]
       summary: Update a book
-      description: Updates an existing book.
-      operationId: updateBook
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookInput'
+              $ref: '#/components/schemas/BookRequest'
       responses:
         '200':
-          description: Book updated successfully.
+          description: Book updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     delete:
-      tags: [Books]
+      tags: [Book]
       summary: Delete a book
-      description: Deletes a book by id.
-      operationId: deleteBook
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '204':
-          description: Book deleted successfully.
-        '404':
-          $ref: '#/components/responses/NotFound'
+          description: Book deleted
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/search/title:
     get:
-      tags: [Books]
+      tags: [Book]
       summary: Search books by title
-      description: Returns books whose title matches the provided search text.
-      operationId: searchBooksByTitle
       parameters:
         - name: title
           in: query
           required: true
-          description: Title text to search for.
           schema:
             type: string
             example: Clean Code
       responses:
         '200':
-          description: Matching books.
+          description: Matching books
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/search/isbn:
     get:
-      tags: [Books]
+      tags: [Book]
       summary: Search a book by ISBN
-      description: Returns a book matching the provided ISBN.
-      operationId: searchBookByIsbn
       parameters:
         - name: isbn
           in: query
           required: true
-          description: Book ISBN.
           schema:
             type: string
-            example: '9780132350884'
+            example: "9780132350884"
       responses:
         '200':
-          description: Matching book.
+          description: Book found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/library/{libraryId}:
     get:
-      tags: [Books]
+      tags: [Book]
       summary: List books by library
-      description: Returns all books attached to a specific library.
-      operationId: getBooksByLibrary
       parameters:
         - name: libraryId
           in: path
           required: true
-          description: Library unique identifier.
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: Books attached to the library.
+          description: List of books
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/filter/year:
     get:
-      tags: [Books]
+      tags: [Book]
       summary: Filter books by publication year
-      description: Returns books published in the specified year.
-      operationId: getBooksByYear
       parameters:
         - name: year
           in: query
           required: true
-          description: Publication year.
           schema:
             type: integer
-            example: 2024
+            example: 2008
       responses:
         '200':
-          description: Books published in the specified year.
+          description: List of books
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/sort/title:
     get:
-      tags: [Books]
+      tags: [Book]
       summary: List books sorted by title
-      description: Returns all books sorted alphabetically by title.
-      operationId: getBooksSortedByTitle
       responses:
         '200':
-          description: Books sorted by title.
+          description: Books sorted by title
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /api/books/sort/price:
     get:
-      tags: [Books]
+      tags: [Book]
       summary: List books sorted by price
-      description: Returns all books sorted by price.
-      operationId: getBooksSortedByPrice
       responses:
         '200':
-          description: Books sorted by price.
+          description: Books sorted by price
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
+                  $ref: '#/components/schemas/BookResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/authors:
+    get:
+      tags: [Author]
+      summary: List all authors
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Author]
+      summary: Create an author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorCreateRequest'
+      responses:
+        '201':
+          description: Author created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/authors/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
+    get:
+      tags: [Author]
+      summary: Get an author by id
+      responses:
+        '200':
+          description: Author found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Author]
+      summary: Update an author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorUpdateRequest'
+      responses:
+        '200':
+          description: Author updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Author]
+      summary: Delete an author
+      responses:
+        '204':
+          description: Author deleted
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/authors/search:
+    get:
+      tags: [Author]
+      summary: Search authors by last name
+      parameters:
+        - name: lastName
+          in: query
+          required: true
+          schema:
+            type: string
+            example: Martin
+      responses:
+        '200':
+          description: Matching authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/authors/{authorId}/books/{bookId}:
+    parameters:
+      - name: authorId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: bookId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    post:
+      tags: [Author]
+      summary: Add an author to a book
+      responses:
+        '204':
+          description: Author added to book
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Author]
+      summary: Remove an author from a book
+      responses:
+        '204':
+          description: Author removed from book
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/authors/{authorId}/books:
+    get:
+      tags: [Author]
+      summary: List book ids by author
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of book ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/authors/books/{bookId}/authors:
+    get:
+      tags: [Author]
+      summary: List authors of a book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/genres:
+    get:
+      tags: [Genre]
+      summary: List or search genres
+      parameters:
+        - name: name
+          in: query
+          required: false
+          description: Search genres by name
+          schema:
+            type: string
+            example: Fantasy
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Genre]
+      summary: Create a genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreCreateRequest'
+      responses:
+        '201':
+          description: Genre created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/genres/{genreId}:
+    parameters:
+      - $ref: '#/components/parameters/GenreId'
+
+    get:
+      tags: [Genre]
+      summary: Get a genre by id
+      responses:
+        '200':
+          description: Genre found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Genre]
+      summary: Update a genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreUpdateRequest'
+      responses:
+        '200':
+          description: Genre updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Genre]
+      summary: Delete a genre
+      responses:
+        '204':
+          description: Genre deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/genres/{genreId}/books/{bookId}:
+    parameters:
+      - $ref: '#/components/parameters/GenreId'
+      - name: bookId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    post:
+      tags: [Genre]
+      summary: Add a genre to a book
+      responses:
+        '201':
+          description: Genre added to book
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Genre]
+      summary: Remove a genre from a book
+      responses:
+        '204':
+          description: Genre removed from book
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/genres/books/{bookId}/genres:
+    get:
+      tags: [Genre]
+      summary: List genres of a book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/genres/{genreId}/books:
+    get:
+      tags: [Genre]
+      summary: List book ids by genre
+      parameters:
+        - $ref: '#/components/parameters/GenreId'
+      responses:
+        '200':
+          description: List of book ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /libraries:
     get:
-      tags: [Libraries]
-      summary: List libraries
-      description: Returns all libraries.
-      operationId: getLibraries
+      tags: [Library]
+      summary: List all libraries
       responses:
         '200':
-          description: List of libraries.
+          description: List of libraries
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Library'
+                  $ref: '#/components/schemas/LibraryResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     post:
-      tags: [Libraries]
+      tags: [Library]
       summary: Create a library
-      description: Creates a new library.
-      operationId: createLibrary
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LibraryInput'
+              $ref: '#/components/schemas/LibraryRequest'
       responses:
         '200':
-          description: Library created successfully.
+          description: Library created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Library'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/LibraryResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /libraries/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
     get:
-      tags: [Libraries]
+      tags: [Library]
       summary: Get a library by id
-      description: Returns a single library by its unique identifier.
-      operationId: getLibraryById
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
-          description: Library found.
+          description: Library found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Library'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/LibraryResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     put:
-      tags: [Libraries]
+      tags: [Library]
       summary: Update a library
-      description: Updates an existing library.
-      operationId: updateLibrary
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LibraryInput'
+              $ref: '#/components/schemas/LibraryRequest'
       responses:
         '200':
-          description: Library updated successfully.
+          description: Library updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Library'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/LibraryResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     delete:
-      tags: [Libraries]
+      tags: [Library]
       summary: Delete a library
-      description: Deletes a library by id.
-      operationId: deleteLibrary
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
-          description: Library deleted successfully.
-        '404':
-          $ref: '#/components/responses/NotFound'
+          description: Library deleted
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /libraries/search:
     get:
-      tags: [Libraries]
+      tags: [Library]
       summary: Search libraries by name
-      description: Returns libraries matching the provided name.
-      operationId: searchLibraries
       parameters:
         - name: name
           in: query
           required: true
-          description: Library name to search for.
           schema:
             type: string
             example: Central Library
       responses:
         '200':
-          description: Matching libraries.
+          description: Matching libraries
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Library'
+                  $ref: '#/components/schemas/LibraryResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /book-copies:
     get:
-      tags: [Book copies]
+      tags: [BookCopy]
       summary: List book copies
-      description: |
-        Returns book copies. Optional filters can be applied by book id or library id.
-        Use only one filter at a time.
-      operationId: getBookCopies
       parameters:
         - name: bookId
           in: query
           required: false
-          description: Filter copies by book id.
           schema:
             type: string
             format: uuid
         - name: libraryId
           in: query
           required: false
-          description: Filter copies by library id.
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: List of book copies.
+          description: List of book copies
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BookCopy'
+                  $ref: '#/components/schemas/BookCopyResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /book-copies/{id}:
     get:
-      tags: [Book copies]
+      tags: [BookCopy]
       summary: Get a book copy by id
-      description: Returns a single book copy by its unique identifier.
-      operationId: getBookCopyById
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/Id'
       responses:
         '200':
-          description: Book copy found.
+          description: Book copy found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookCopy'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/BookCopyResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /book-copies/available:
     get:
-      tags: [Book copies]
+      tags: [BookCopy]
       summary: List available book copies
-      description: Returns all available book copies, optionally filtered by book id.
-      operationId: getAvailableBookCopies
       parameters:
         - name: bookId
           in: query
           required: false
-          description: Filter available copies by book id.
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: Available book copies.
+          description: Available book copies
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BookCopy'
+                  $ref: '#/components/schemas/BookCopyResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /book-copies/count/available:
     get:
-      tags: [Book copies]
-      summary: Count available copies by book
-      description: Returns the number of available copies for a book.
-      operationId: countAvailableBookCopiesByBook
+      tags: [BookCopy]
+      summary: Count available book copies by book
       parameters:
         - name: bookId
           in: query
           required: true
-          description: Book unique identifier.
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: Number of available copies.
+          description: Number of available copies
           content:
             application/json:
               schema:
                 type: integer
                 format: int64
                 example: 4
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /book-copies/{id}/status:
     patch:
-      tags: [Book copies]
+      tags: [BookCopy]
       summary: Update a book copy status
-      description: Updates the status of a book copy.
-      operationId: updateBookCopyStatus
       parameters:
-        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/Id'
         - name: status
           in: query
           required: true
-          description: New status of the book copy.
           schema:
             $ref: '#/components/schemas/BookCopyStatus'
       responses:
         '200':
-          description: Book copy status updated successfully.
+          description: Book copy status updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookCopy'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/BookCopyResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /arrivals:
     get:
-      tags: [Arrivals]
+      tags: [Arrival]
       summary: List arrivals
-      description: |
-        Returns stock arrivals. Optional filters can be applied by book copy id or book id.
-        Use only one filter at a time.
-      operationId: getArrivals
       parameters:
         - name: bookCopyId
           in: query
           required: false
-          description: Filter arrivals by book copy id.
           schema:
             type: string
             format: uuid
         - name: bookId
           in: query
           required: false
-          description: Filter arrivals by book id.
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: List of arrivals.
+          description: List of arrivals
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Arrival'
+                  $ref: '#/components/schemas/ArrivalResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     post:
-      tags: [Arrivals]
+      tags: [Arrival]
       summary: Create an arrival
-      description: Creates a stock arrival for a book copy.
-      operationId: createArrival
+      description: Create a stock arrival and set the related book copy status to AVAILABLE.
       requestBody:
         required: true
         content:
@@ -569,38 +890,36 @@ paths:
               $ref: '#/components/schemas/CreateArrivalRequest'
       responses:
         '201':
-          description: Arrival created successfully.
+          description: Arrival created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Arrival'
+                $ref: '#/components/schemas/ArrivalResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /arrivals/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
     get:
-      tags: [Arrivals]
+      tags: [Arrival]
       summary: Get an arrival by id
-      description: Returns a single arrival by its unique identifier.
-      operationId: getArrivalById
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
-          description: Arrival found.
+          description: Arrival found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Arrival'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/ArrivalResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     put:
-      tags: [Arrivals]
+      tags: [Arrival]
       summary: Update an arrival
-      description: Updates an existing arrival.
-      operationId: updateArrival
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
@@ -609,36 +928,35 @@ paths:
               $ref: '#/components/schemas/UpdateArrivalRequest'
       responses:
         '200':
-          description: Arrival updated successfully.
+          description: Arrival updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Arrival'
+                $ref: '#/components/schemas/ArrivalResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /customers:
     get:
-      tags: [Customers]
-      summary: List customers
-      description: Returns all customers.
-      operationId: getCustomers
+      tags: [Customer]
+      summary: List all customers
       responses:
         '200':
-          description: List of customers.
+          description: List of customers
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Customer'
+                  $ref: '#/components/schemas/CustomerResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     post:
-      tags: [Customers]
+      tags: [Customer]
       summary: Create a customer
-      description: Creates a new customer.
-      operationId: createCustomer
       requestBody:
         required: true
         content:
@@ -647,38 +965,38 @@ paths:
               $ref: '#/components/schemas/CreateCustomerRequest'
       responses:
         '201':
-          description: Customer created successfully.
+          description: Customer created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/CustomerResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /customers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
     get:
-      tags: [Customers]
+      tags: [Customer]
       summary: Get a customer by id
-      description: Returns a single customer by its unique identifier.
-      operationId: getCustomerById
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
-          description: Customer found.
+          description: Customer found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/CustomerResponse'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     put:
-      tags: [Customers]
+      tags: [Customer]
       summary: Update a customer
-      description: Updates an existing customer.
-      operationId: updateCustomer
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
@@ -687,77 +1005,73 @@ paths:
               $ref: '#/components/schemas/UpdateCustomerRequest'
       responses:
         '200':
-          description: Customer updated successfully.
+          description: Customer updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/CustomerResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     delete:
-      tags: [Customers]
+      tags: [Customer]
       summary: Delete a customer
-      description: Deletes a customer by id.
-      operationId: deleteCustomer
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '204':
-          description: Customer deleted successfully.
+          description: Customer deleted
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /sales:
     get:
-      tags: [Sales]
+      tags: [Sale]
       summary: List sales
-      description: Returns sales, optionally filtered by customer, library and date range.
-      operationId: getSales
       parameters:
         - name: customerId
           in: query
           required: false
-          description: Filter sales by customer id.
           schema:
             type: string
             format: uuid
         - name: libraryId
           in: query
           required: false
-          description: Filter sales by library id.
           schema:
             type: string
             format: uuid
         - name: from
           in: query
           required: false
-          description: Start date-time of the sale date range.
           schema:
             type: string
             format: date-time
         - name: to
           in: query
           required: false
-          description: End date-time of the sale date range.
           schema:
             type: string
             format: date-time
       responses:
         '200':
-          description: List of sales.
+          description: List of sales
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Sale'
+                  $ref: '#/components/schemas/SaleResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     post:
-      tags: [Sales]
+      tags: [Sale]
       summary: Create a sale
-      description: Creates a sale with one or more sale items.
-      operationId: createSale
       requestBody:
         required: true
         content:
@@ -766,38 +1080,40 @@ paths:
               $ref: '#/components/schemas/CreateSaleRequest'
       responses:
         '201':
-          description: Sale created successfully.
+          description: Sale created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sale'
+                $ref: '#/components/schemas/SaleResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /sales/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
     get:
-      tags: [Sales]
+      tags: [Sale]
       summary: Get a sale by id
-      description: Returns a single sale by its unique identifier.
-      operationId: getSaleById
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '200':
-          description: Sale found.
+          description: Sale found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sale'
+                $ref: '#/components/schemas/SaleResponse'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     put:
-      tags: [Sales]
+      tags: [Sale]
       summary: Update a sale
-      description: Updates an existing sale and its sale items.
-      operationId: updateSale
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       requestBody:
         required: true
         content:
@@ -806,600 +1122,537 @@ paths:
               $ref: '#/components/schemas/UpdateSaleRequest'
       responses:
         '200':
-          description: Sale updated successfully.
+          description: Sale updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sale'
+                $ref: '#/components/schemas/SaleResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
     delete:
-      tags: [Sales]
+      tags: [Sale]
       summary: Delete a sale
-      description: Deletes a sale by id.
-      operationId: deleteSale
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
       responses:
         '204':
-          description: Sale deleted successfully.
+          description: Sale deleted
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
 components:
+
   parameters:
-    IdPathParam:
+    Id:
       name: id
       in: path
       required: true
-      description: Resource unique identifier.
+      schema:
+        type: string
+        format: uuid
+
+    GenreId:
+      name: genreId
+      in: path
+      required: true
       schema:
         type: string
         format: uuid
 
   responses:
     BadRequest:
-      description: Invalid request.
-      content:
-        application/json:
-          schema:
-            oneOf:
-              - $ref: '#/components/schemas/ErrorResponse'
-              - $ref: '#/components/schemas/ValidationErrorResponse'
-    Forbidden:
-      description: Operation is forbidden.
+      description: Bad request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+
     NotFound:
-      description: Resource not found.
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalError:
+      description: Internal server error
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
+
     ErrorResponse:
       type: object
-      description: Standard error response.
       properties:
         status:
           type: integer
           example: 404
+        error:
+          type: string
+          example: Not Found
         message:
           type: string
           example: Resource not found
 
-    ValidationErrorResponse:
+    BookRequest:
       type: object
-      description: Validation error response keyed by field name.
-      properties:
-        status:
-          type: integer
-          example: 400
-        errors:
-          type: object
-          additionalProperties:
-            type: string
-          example:
-            email: The email is invalid
-            firstName: The first name is mandatory
-
-    Book:
-      type: object
-      description: Book resource.
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Book unique identifier.
-        title:
-          type: string
-          description: Book title.
-          example: Clean Code
-        isbn:
-          type: string
-          description: Book ISBN.
-          example: '9780132350884'
-        publicationYear:
-          type: integer
-          description: Year when the book was published.
-          example: 2008
-        price:
-          type: number
-          format: double
-          description: Book base price.
-          example: 45000
-        libraryId:
-          type: string
-          format: uuid
-          description: Identifier of the library that owns the book.
-      required:
-        - id
-        - title
-        - price
-        - libraryId
-
-    BookInput:
-      type: object
-      description: Payload used to create or update a book.
-      properties:
-        title:
-          type: string
-          description: Book title.
-          example: Clean Code
-        isbn:
-          type: string
-          description: Book ISBN.
-          example: '9780132350884'
-        publicationYear:
-          type: integer
-          description: Year when the book was published.
-          example: 2008
-        price:
-          type: number
-          format: double
-          description: Book base price.
-          example: 45000
-        libraryId:
-          type: string
-          format: uuid
-          description: Identifier of the library that owns the book.
       required:
         - title
         - price
         - libraryId
-
-    Library:
-      type: object
-      description: Library resource.
       properties:
         id:
           type: string
           format: uuid
-          description: Library unique identifier.
-        name:
+        title:
           type: string
-          description: Library name.
-          example: Central Library
-        address:
+          example: Clean Code
+        isbn:
           type: string
-          description: Library address.
-          example: 12 Main Street
-        phone:
-          type: string
-          description: Library phone number.
-          example: '+261341234567'
-      required:
-        - id
-        - name
-
-    LibraryInput:
-      type: object
-      description: Payload used to create or update a library.
-      properties:
-        name:
-          type: string
-          description: Library name.
-          example: Central Library
-        address:
-          type: string
-          description: Library address.
-          example: 12 Main Street
-        phone:
-          type: string
-          description: Library phone number.
-          example: '+261341234567'
-      required:
-        - name
-
-    BookCopy:
-      type: object
-      description: Copy of a book available in a library.
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Book copy unique identifier.
-        bookId:
-          type: string
-          format: uuid
-          description: Related book identifier.
+          example: "9780132350884"
+        publicationYear:
+          type: integer
+          example: 2008
+        price:
+          type: number
+          format: decimal
+          example: 45000
         libraryId:
           type: string
           format: uuid
-          description: Related library identifier.
-        format:
-          $ref: '#/components/schemas/BookCopyFormat'
+
+    BookResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
         isbn:
           type: string
-          description: ISBN of this copy.
-          example: '9780132350884'
-        sellingPrice:
+        publicationYear:
+          type: integer
+        price:
           type: number
-          format: double
-          description: Selling price of this copy.
-          example: 50000
-        status:
-          $ref: '#/components/schemas/BookCopyStatus'
+          format: decimal
+        libraryId:
+          type: string
+          format: uuid
+
+    AuthorCreateRequest:
+      type: object
       required:
-        - id
-        - bookId
-        - libraryId
-        - format
-        - sellingPrice
-        - status
+        - firstName
+        - lastName
+        - sexe
+      properties:
+        firstName:
+          type: string
+          example: Robert
+        lastName:
+          type: string
+          example: Martin
+        sexe:
+          $ref: '#/components/schemas/Sexe'
+
+    AuthorUpdateRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+          example: Robert C.
+        lastName:
+          type: string
+          example: Martin
+
+    AuthorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        sexe:
+          $ref: '#/components/schemas/Sexe'
+
+    Sexe:
+      type: string
+      enum:
+        - M
+        - F
+
+    GenreCreateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Fantasy
+
+    GenreUpdateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Science Fiction
+
+    GenreResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    LibraryRequest:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Central Library
+        address:
+          type: string
+          example: Analakely, Antananarivo
+        phone:
+          type: string
+          example: "0341234567"
+
+    LibraryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
 
     BookCopyFormat:
       type: string
-      description: Format of a book copy.
       enum:
         - PHYSICAL
         - DIGITAL
         - POCKET
         - LARGE_FORMAT
-      example: PHYSICAL
 
     BookCopyStatus:
       type: string
-      description: Status of a book copy.
       enum:
         - AVAILABLE
         - DAMAGED
         - LOST
         - RESOLVED
-      example: AVAILABLE
+
+    BookCopyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        libraryId:
+          type: string
+          format: uuid
+        format:
+          $ref: '#/components/schemas/BookCopyFormat'
+        isbn:
+          type: string
+          example: "9780132350885"
+        sellingPrice:
+          type: number
+          format: decimal
+          example: 50000
+        status:
+          $ref: '#/components/schemas/BookCopyStatus'
 
     CreateArrivalRequest:
       type: object
-      description: Payload used to create a stock arrival.
-      properties:
-        bookCopyId:
-          type: string
-          format: uuid
-          description: Related book copy identifier.
-        quantity:
-          type: integer
-          minimum: 1
-          description: Quantity received.
-          example: 10
-        unitPrice:
-          type: number
-          format: double
-          minimum: 0
-          exclusiveMinimum: true
-          description: Unit purchase price.
-          example: 25000
-        arrivalDate:
-          type: string
-          format: date-time
-          description: Arrival date and time.
-          example: '2026-07-02T10:00:00Z'
       required:
         - bookCopyId
         - quantity
         - unitPrice
         - arrivalDate
+      properties:
+        bookCopyId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          example: 50
+        unitPrice:
+          type: number
+          format: decimal
+          exclusiveMinimum: true
+          minimum: 0
+          example: 40000
+        arrivalDate:
+          type: string
+          format: date-time
+          example: "2024-01-15T08:00:00Z"
 
     UpdateArrivalRequest:
       type: object
-      description: Payload used to update a stock arrival.
+      required:
+        - quantity
+        - unitPrice
+        - arrivalDate
       properties:
         quantity:
           type: integer
           minimum: 1
-          description: Quantity received.
-          example: 10
+          example: 30
         unitPrice:
           type: number
-          format: double
-          minimum: 0
+          format: decimal
           exclusiveMinimum: true
-          description: Unit purchase price.
-          example: 25000
+          minimum: 0
+          example: 42000
         arrivalDate:
           type: string
           format: date-time
-          description: Arrival date and time.
-          example: '2026-07-02T10:00:00Z'
-      required:
-        - quantity
-        - unitPrice
-        - arrivalDate
+          example: "2024-02-01T09:00:00Z"
 
-    Arrival:
+    ArrivalResponse:
       type: object
-      description: Stock arrival response.
       properties:
         id:
           type: string
           format: uuid
-          description: Arrival unique identifier.
         bookCopyId:
           type: string
           format: uuid
-          description: Related book copy identifier.
         bookTitle:
           type: string
-          description: Title of the related book.
-          example: Clean Code
         bookCopyIsbn:
           type: string
-          description: ISBN of the related book copy.
-          example: '9780132350884'
         quantity:
           type: integer
-          description: Quantity received.
-          example: 10
         unitPrice:
           type: number
-          format: double
-          description: Unit purchase price.
-          example: 25000
+          format: decimal
         totalPrice:
           type: number
-          format: double
-          description: Total arrival price.
-          example: 250000
+          format: decimal
         arrivalDate:
           type: string
           format: date-time
-          description: Arrival date and time.
-      required:
-        - id
-        - bookCopyId
-        - quantity
-        - unitPrice
-        - totalPrice
-        - arrivalDate
 
     CreateCustomerRequest:
       type: object
-      description: Payload used to create a customer.
-      properties:
-        firstName:
-          type: string
-          description: Customer first name.
-          example: John
-        lastName:
-          type: string
-          description: Customer last name.
-          example: Doe
-        email:
-          type: string
-          format: email
-          description: Customer email address.
-          example: john.doe@example.com
-        phone:
-          type: string
-          description: Customer phone number.
-          example: '+261341234567'
       required:
         - firstName
         - lastName
         - email
         - phone
+      properties:
+        firstName:
+          type: string
+          example: Rakoto
+        lastName:
+          type: string
+          example: Andriantsoa
+        email:
+          type: string
+          format: email
+          example: rakoto@gmail.com
+        phone:
+          type: string
+          example: "0341112233"
 
     UpdateCustomerRequest:
-      allOf:
-        - $ref: '#/components/schemas/CreateCustomerRequest'
-      description: Payload used to update a customer.
-
-    Customer:
       type: object
-      description: Customer response.
+      required:
+        - firstName
+        - lastName
+        - email
+        - phone
+      properties:
+        firstName:
+          type: string
+          example: Rakoto
+        lastName:
+          type: string
+          example: Andriantsoa
+        email:
+          type: string
+          format: email
+          example: rakoto.updated@gmail.com
+        phone:
+          type: string
+          example: "0341112233"
+
+    CustomerResponse:
+      type: object
       properties:
         id:
           type: string
           format: uuid
-          description: Customer unique identifier.
         firstName:
           type: string
-          description: Customer first name.
-          example: John
         lastName:
           type: string
-          description: Customer last name.
-          example: Doe
         email:
           type: string
           format: email
-          description: Customer email address.
-          example: john.doe@example.com
         phone:
           type: string
-          description: Customer phone number.
-          example: '+261341234567'
         createdAt:
           type: string
           format: date-time
-          description: Creation date and time.
         updatedAt:
           type: string
           format: date-time
-          description: Last update date and time.
-      required:
-        - id
-        - firstName
-        - lastName
-        - email
-        - phone
-        - createdAt
-        - updatedAt
 
     CreateSaleItemRequest:
       type: object
-      description: Item included in a sale creation request.
+      required:
+        - bookCopyId
+        - quantity
+        - unitPrice
       properties:
         bookCopyId:
           type: string
           format: uuid
-          description: Sold book copy identifier.
         quantity:
           type: integer
           minimum: 1
-          description: Quantity sold.
-          example: 1
+          example: 3
         unitPrice:
           type: number
-          format: double
-          minimum: 0
+          format: decimal
           exclusiveMinimum: true
-          description: Unit selling price.
-          example: 50000
-      required:
-        - bookCopyId
-        - quantity
-        - unitPrice
+          minimum: 0
+          example: 55000
 
     CreateSaleRequest:
       type: object
-      description: Payload used to create a sale.
-      properties:
-        customerId:
-          type: string
-          format: uuid
-          description: Customer identifier.
-        libraryId:
-          type: string
-          format: uuid
-          description: Library identifier.
-        saleDate:
-          type: string
-          format: date-time
-          description: Sale date and time.
-          example: '2026-07-02T10:00:00Z'
-        saleItems:
-          type: array
-          description: Items included in the sale.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/CreateSaleItemRequest'
       required:
         - customerId
         - libraryId
         - saleDate
         - saleItems
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        libraryId:
+          type: string
+          format: uuid
+        saleDate:
+          type: string
+          format: date-time
+          example: "2024-03-01T10:00:00Z"
+        saleItems:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreateSaleItemRequest'
 
     UpdateSaleRequest:
       type: object
-      description: Payload used to update a sale.
+      required:
+        - saleDate
+        - saleItems
       properties:
         saleDate:
           type: string
           format: date-time
-          description: Sale date and time.
-          example: '2026-07-02T10:00:00Z'
+          example: "2024-03-01T10:00:00Z"
         saleItems:
           type: array
-          description: Updated sale items.
           minItems: 1
           items:
             $ref: '#/components/schemas/CreateSaleItemRequest'
-      required:
-        - saleDate
-        - saleItems
 
-    SaleItem:
+    SaleItemResponse:
       type: object
-      description: Sale item response.
       properties:
         id:
           type: string
           format: uuid
-          description: Sale item unique identifier.
         bookCopyId:
           type: string
           format: uuid
-          description: Sold book copy identifier.
         bookTitle:
           type: string
-          description: Sold book title.
-          example: Clean Code
         bookCopyIsbn:
           type: string
-          description: Sold book copy ISBN.
-          example: '9780132350884'
         quantity:
           type: integer
-          description: Quantity sold.
-          example: 1
         unitPrice:
           type: number
-          format: double
-          description: Unit selling price.
-          example: 50000
+          format: decimal
         totalPrice:
           type: number
-          format: double
-          description: Total price for this sale item.
-          example: 50000
-      required:
-        - id
-        - bookCopyId
-        - quantity
-        - unitPrice
-        - totalPrice
+          format: decimal
 
-    Sale:
+    SaleResponse:
       type: object
-      description: Sale response.
       properties:
         id:
           type: string
           format: uuid
-          description: Sale unique identifier.
         customerId:
           type: string
           format: uuid
-          description: Customer identifier.
         customerFirstName:
           type: string
-          description: Customer first name.
-          example: John
         customerLastName:
           type: string
-          description: Customer last name.
-          example: Doe
         libraryId:
           type: string
           format: uuid
-          description: Library identifier.
         libraryName:
           type: string
-          description: Library name.
-          example: Central Library
         saleDate:
           type: string
           format: date-time
-          description: Sale date and time.
         totalAmount:
           type: number
-          format: double
-          description: Total sale amount.
-          example: 50000
+          format: decimal
         saleItems:
           type: array
-          description: Items included in the sale.
           items:
-            $ref: '#/components/schemas/SaleItem'
+            $ref: '#/components/schemas/SaleItemResponse'
         createdAt:
           type: string
           format: date-time
-          description: Creation date and time.
         updatedAt:
           type: string
           format: date-time
-          description: Last update date and time.
-      required:
-        - id
-        - customerId
-        - libraryId
-        - saleDate
-        - totalAmount
-        - saleItems
-        - createdAt
-        - updatedAt

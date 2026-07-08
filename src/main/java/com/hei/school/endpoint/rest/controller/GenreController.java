@@ -3,6 +3,7 @@ package com.hei.school.endpoint.rest.controller;
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
+import com.hei.school.dto.response.GenreRevenueResponse;
 import com.hei.school.service.GenreService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/genres")
+@RequestMapping("/genres")
 @RequiredArgsConstructor
 public class GenreController {
 
@@ -23,6 +24,11 @@ public class GenreController {
   public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreCreateRequest request) {
     GenreResponse response = genreService.createGenre(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @GetMapping("/{genreId}/revenue")
+  public GenreRevenueResponse getRevenue(@PathVariable UUID genreId) {
+    return genreService.getRevenue(genreId);
   }
 
   @PutMapping("/{genreId}")

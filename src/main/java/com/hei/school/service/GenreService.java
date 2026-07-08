@@ -3,12 +3,15 @@ package com.hei.school.service;
 import com.hei.school.dto.request.GenreCreateRequest;
 import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
+import com.hei.school.dto.response.GenreRevenueResponse;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.Genre;
 import com.hei.school.exception.ConflictException;
 import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.GenreRepository;
+import com.hei.school.repository.SaleItemRepository;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +25,22 @@ public class GenreService {
 
   private final GenreRepository genreRepository;
   private final BookRepository bookRepository;
+  private final SaleItemRepository saleItemRepository;
+
+  public GenreRevenueResponse getRevenue(UUID genreId) {
+    Genre genre =
+        genreRepository
+            .findById(genreId)
+            .orElseThrow(() -> new NotFoundException("Genre with id " + genreId + " not found"));
+
+    BigDecimal revenue = saleItemRepository.sumRevenueByGenreId(genreId);
+
+    if (revenue == null) {
+      revenue = BigDecimal.ZERO;
+    }
+
+    return new GenreRevenueResponse(genre.getId(), genre.getName(), revenue);
+  }
 
   @Transactional
   public GenreResponse createGenre(GenreCreateRequest request) {

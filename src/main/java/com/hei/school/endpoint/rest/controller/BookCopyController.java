@@ -1,11 +1,15 @@
 package com.hei.school.endpoint.rest.controller;
 
 import com.hei.school.dto.BookCopyDTO;
+import com.hei.school.dto.request.CreateBookCopyRequest;
+import com.hei.school.dto.response.BookCopyResponse;
 import com.hei.school.entity.enums.BookCopyStatus;
 import com.hei.school.service.BookCopyService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class BookCopyController {
 
   private final BookCopyService bookCopyService;
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public BookCopyResponse create(@RequestBody @Valid CreateBookCopyRequest request) {
+    return bookCopyService.create(request);
+  }
 
   @GetMapping
   public List<BookCopyDTO> getAll() {

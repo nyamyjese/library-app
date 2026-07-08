@@ -5,16 +5,16 @@ import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.Genre;
+import com.hei.school.exception.ConflictException;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.GenreRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +27,7 @@ public class GenreService {
   public GenreResponse createGenre(GenreCreateRequest request) {
     Genre genre = Genre.builder().name(request.name()).build();
     Genre saved = genreRepository.save(genre);
+
     return mapToResponse(saved);
   }
 
@@ -35,9 +36,10 @@ public class GenreService {
     Genre genre =
         genreRepository
             .findById(id)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found: " + id));
+
     genre.setName(request.name());
+
     return mapToResponse(genreRepository.save(genre));
   }
 
@@ -46,8 +48,8 @@ public class GenreService {
     Genre genre =
         genreRepository
             .findById(genreId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found: " + genreId));
+
     genreRepository.delete(genre);
   }
 
@@ -55,8 +57,8 @@ public class GenreService {
     Genre genre =
         genreRepository
             .findById(genreId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found: " + genreId));
+
     return mapToResponse(genre);
   }
 
@@ -75,19 +77,20 @@ public class GenreService {
     Book book =
         bookRepository
             .findById(bookId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found: " + bookId));
+
     Genre genre =
         genreRepository
             .findById(genreId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found: " + genreId));
 
     if (book.getGenres() == null) {
       book.setGenres(new ArrayList<>());
     }
 
     if (book.getGenres().contains(genre)) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Association already exists");
+      throw new ConflictException(
+          "Association already exists for book " + bookId + " and genre " + genreId);
     }
 
     book.getGenres().add(genre);
@@ -99,16 +102,18 @@ public class GenreService {
     Book book =
         bookRepository
             .findById(bookId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found: " + bookId));
+
     Genre genre =
         genreRepository
             .findById(genreId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found: " + genreId));
 
     if (book.getGenres() == null || !book.getGenres().remove(genre)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Association not found");
+      throw new NotFoundException(
+          "Association not found for book " + bookId + " and genre " + genreId);
     }
+
     bookRepository.save(book);
   }
 
@@ -116,23 +121,25 @@ public class GenreService {
     Book book =
         bookRepository
             .findById(bookId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found: " + bookId));
 
     if (book.getGenres() == null) {
       return List.of();
     }
+
     return book.getGenres().stream().map(this::mapToResponse).toList();
   }
 
   public List<UUID> getBooksByGenre(UUID genreId) {
     if (!genreRepository.existsById(genreId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found");
+      throw new NotFoundException("Genre not found: " + genreId);
     }
+
     return bookRepository.findAll().stream()
         .filter(
             book ->
                 book.getGenres() != null
-                    && book.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)))
+                    && book.getGenres().stream().anyMatch(genre -> genre.getId().equals(genreId)))
         .map(Book::getId)
         .toList();
   }

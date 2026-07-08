@@ -2,6 +2,7 @@ package com.hei.school.service;
 
 import com.hei.school.dto.LibraryDTO;
 import com.hei.school.entity.Library;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.LibraryRepository;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,7 @@ public class LibraryService {
   public Library getById(UUID id) {
     return libraryRepository
         .findById(id)
-        .orElseThrow(() -> new RuntimeException("Library not found : " + id));
+        .orElseThrow(() -> new NotFoundException("Library not found: " + id));
   }
 
   public List<Library> searchByName(String name) {

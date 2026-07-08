@@ -3,6 +3,7 @@ package com.hei.school.service;
 import com.hei.school.dto.BookDTO;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.Library;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.LibraryRepository;
 import java.util.List;
@@ -25,7 +26,7 @@ public class BookService {
     return toDTO(
         bookRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("Book with id : " + id + " not found!")));
+            .orElseThrow(() -> new NotFoundException("Book with id " + id + " not found")));
   }
 
   public List<BookDTO> searchByTitle(String title) {
@@ -36,11 +37,11 @@ public class BookService {
     return toDTO(
         bookRepository
             .findByIsbn(isbn)
-            .orElseThrow(() -> new RuntimeException("Book with ISBN : " + isbn + " not found!")));
+            .orElseThrow(() -> new NotFoundException("Book with ISBN : " + isbn + " not found!")));
   }
 
   public List<BookDTO> getByLibrary(UUID libraryId) {
-    return bookRepository.findByLibrary_LibraryId(libraryId).stream().map(this::toDTO).toList();
+    return bookRepository.findByLibrary_Id(libraryId).stream().map(this::toDTO).toList();
   }
 
   public List<BookDTO> getByYear(Integer year) {

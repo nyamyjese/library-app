@@ -5,9 +5,9 @@ import com.hei.school.dto.request.AuthorUpdateRequest;
 import com.hei.school.dto.response.AuthorResponse;
 import com.hei.school.entity.Author;
 import com.hei.school.entity.Book;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.AuthorRepository;
 import com.hei.school.repository.BookRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,7 @@ public class AuthorService {
             .lastName(request.lastName())
             .sexe(request.sexe())
             .build();
+
     return toResponse(authorRepository.save(author));
   }
 
@@ -37,17 +38,20 @@ public class AuthorService {
     Author author =
         authorRepository
             .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Author not found: " + id));
+
     author.setFirstName(request.firstName());
     author.setLastName(request.lastName());
+
     return toResponse(authorRepository.save(author));
   }
 
   @Transactional
   public void delete(UUID id) {
     if (!authorRepository.existsById(id)) {
-      throw new EntityNotFoundException("Author not found: " + id);
+      throw new NotFoundException("Author not found: " + id);
     }
+
     authorRepository.deleteById(id);
   }
 
@@ -55,7 +59,7 @@ public class AuthorService {
     return authorRepository
         .findById(id)
         .map(this::toResponse)
-        .orElseThrow(() -> new EntityNotFoundException("Author not found: " + id));
+        .orElseThrow(() -> new NotFoundException("Author not found: " + id));
   }
 
   public List<AuthorResponse> getAll() {
@@ -73,11 +77,12 @@ public class AuthorService {
     Book book =
         bookRepository
             .findById(bookId)
-            .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+            .orElseThrow(() -> new NotFoundException("Book not found: " + bookId));
+
     Author author =
         authorRepository
             .findById(authorId)
-            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + authorId));
+            .orElseThrow(() -> new NotFoundException("Author not found: " + authorId));
 
     if (!book.getAuthors().contains(author)) {
       book.getAuthors().add(author);
@@ -90,16 +95,17 @@ public class AuthorService {
     Book book =
         bookRepository
             .findById(bookId)
-            .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+            .orElseThrow(() -> new NotFoundException("Book not found: " + bookId));
+
     Author author =
         authorRepository
             .findById(authorId)
-            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + authorId));
+            .orElseThrow(() -> new NotFoundException("Author not found: " + authorId));
 
     if (book.getAuthors().remove(author)) {
       bookRepository.save(book);
     } else {
-      throw new EntityNotFoundException(
+      throw new NotFoundException(
           "Association not found for book " + bookId + " and author " + authorId);
     }
   }
@@ -108,7 +114,8 @@ public class AuthorService {
     Book book =
         bookRepository
             .findById(bookId)
-            .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
+            .orElseThrow(() -> new NotFoundException("Book not found: " + bookId));
+
     return book.getAuthors().stream().map(this::toResponse).toList();
   }
 
@@ -116,7 +123,7 @@ public class AuthorService {
     Author author =
         authorRepository
             .findById(authorId)
-            .orElseThrow(() -> new EntityNotFoundException("Author not found: " + authorId));
+            .orElseThrow(() -> new NotFoundException("Author not found: " + authorId));
 
     return bookRepository.findAll().stream()
         .filter(book -> book.getAuthors().contains(author))

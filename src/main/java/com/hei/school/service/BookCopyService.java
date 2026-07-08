@@ -3,6 +3,7 @@ package com.hei.school.service;
 import com.hei.school.dto.BookCopyDTO;
 import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.enums.BookCopyStatus;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.mapper.BookCopyMapper;
 import com.hei.school.repository.BookCopyRepository;
 import java.util.List;
@@ -21,7 +22,7 @@ public class BookCopyService {
     return bookCopyMapper.toDTO(
         bookCopyRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("BookCopy not found: id=" + id)));
+            .orElseThrow(() -> new NotFoundException("BookCopy not found: id=" + id)));
   }
 
   public List<BookCopyDTO> getAll() {

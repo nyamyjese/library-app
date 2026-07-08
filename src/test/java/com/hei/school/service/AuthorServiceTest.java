@@ -11,9 +11,9 @@ import com.hei.school.dto.response.AuthorResponse;
 import com.hei.school.entity.Author;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.enums.Sexe;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.AuthorRepository;
 import com.hei.school.repository.BookRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +78,7 @@ class AuthorServiceTest {
     when(authorRepository.findById(authorId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> authorService.update(authorId, request))
-        .isInstanceOf(EntityNotFoundException.class);
+        .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -110,7 +110,7 @@ class AuthorServiceTest {
     when(authorRepository.findById(authorId)).thenReturn(Optional.of(author));
 
     assertThatThrownBy(() -> authorService.removeAuthorFromBook(bookId, authorId))
-        .isInstanceOf(EntityNotFoundException.class);
+        .isInstanceOf(NotFoundException.class);
   }
 
   @Test

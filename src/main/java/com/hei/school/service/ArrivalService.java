@@ -6,6 +6,7 @@ import com.hei.school.dto.response.ArrivalResponse;
 import com.hei.school.entity.Arrival;
 import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.enums.BookCopyStatus;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.mapper.ArrivalMapper;
 import com.hei.school.repository.ArrivalRepository;
 import com.hei.school.repository.BookCopyRepository;
@@ -29,7 +30,7 @@ public class ArrivalService {
         bookCopyRepository
             .findById(request.bookCopyId())
             .orElseThrow(
-                () -> new RuntimeException("BookCopy not found: id=" + request.bookCopyId()));
+                () -> new NotFoundException("BookCopy not found: id=" + request.bookCopyId()));
 
     // Met le BookCopy en AVAILABLE après arrivage
     bookCopy.setStatus(BookCopyStatus.AVAILABLE);
@@ -44,7 +45,7 @@ public class ArrivalService {
     Arrival arrival =
         arrivalRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("Arrival not found: id=" + id));
+            .orElseThrow(() -> new NotFoundException("Arrival not found: id=" + id));
 
     arrival.setQuantity(request.quantity());
     arrival.setUnitPrice(request.unitPrice());

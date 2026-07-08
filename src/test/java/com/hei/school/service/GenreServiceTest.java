@@ -10,6 +10,7 @@ import com.hei.school.dto.request.GenreUpdateRequest;
 import com.hei.school.dto.response.GenreResponse;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.Genre;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.repository.BookRepository;
 import com.hei.school.repository.GenreRepository;
 import java.util.ArrayList;
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class GenreServiceTest {
@@ -82,8 +81,7 @@ class GenreServiceTest {
     when(genreRepository.findById(genreId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> genreService.updateGenre(genreId, request))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasFieldOrPropertyWithValue("statusCode", HttpStatus.NOT_FOUND);
+        .isInstanceOf(NotFoundException.class);
   }
 
   @Test

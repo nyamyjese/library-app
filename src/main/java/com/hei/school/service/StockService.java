@@ -30,9 +30,9 @@ public class StockService {
         bookTitle,
         copies.size(),
         countByStatus(copies, BookCopyStatus.AVAILABLE),
+        0L,
         countByStatus(copies, BookCopyStatus.DAMAGED),
-        countByStatus(copies, BookCopyStatus.LOST),
-        countByStatus(copies, BookCopyStatus.RESOLVED));
+        countByStatus(copies, BookCopyStatus.LOST));
   }
 
   public List<BookStockResponse> getAllBooksStock() {
@@ -55,9 +55,9 @@ public class StockService {
         first.getBook().getTitle(),
         isbn,
         countByStatus(copies, BookCopyStatus.AVAILABLE),
+        0L,
         countByStatus(copies, BookCopyStatus.DAMAGED),
-        countByStatus(copies, BookCopyStatus.LOST),
-        countByStatus(copies, BookCopyStatus.RESOLVED));
+        countByStatus(copies, BookCopyStatus.LOST));
   }
 
   public List<LowStockResponse> getLowStockBooks(long threshold) {

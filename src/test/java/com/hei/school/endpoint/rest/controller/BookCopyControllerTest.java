@@ -1,20 +1,27 @@
 package com.hei.school.endpoint.rest.controller;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hei.school.dto.BookCopyDTO;
+import com.hei.school.dto.request.CreateBookCopyRequest;
+import com.hei.school.dto.request.UpdateBookCopyRequest;
+import com.hei.school.dto.response.BookCopyResponse;
 import com.hei.school.entity.enums.BookCopyFormat;
 import com.hei.school.entity.enums.BookCopyStatus;
 import com.hei.school.service.BookCopyService;
+import com.hei.school.service.StockMovementService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,88 +32,61 @@ class BookCopyControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private BookCopyService bookCopyService;
+  @MockBean private StockMovementService stockMovementService;
 
   private final UUID copyId = UUID.randomUUID();
-  private final BookCopyDTO dto =
-      BookCopyDTO.builder()
-          .id(copyId)
-          .bookId(UUID.randomUUID())
-          .libraryId(UUID.randomUUID())
-          .format(BookCopyFormat.PHYSICAL)
-          .isbn("978-1234567890")
-          .sellingPrice(BigDecimal.valueOf(20.00))
-          .status(BookCopyStatus.AVAILABLE)
-          .build();
+  private final BookCopyResponse response =
+      new BookCopyResponse(copyId, UUID.randomUUID(), "Test Book", UUID.randomUUID(),
+          "Main Library", BookCopyFormat.PHYSICAL, "978-1234567890",
+          BigDecimal.valueOf(20.00), BookCopyStatus.AVAILABLE);
 
   @Test
   void getAll() throws Exception {
-    when(bookCopyService.getAll()).thenReturn(List.of(dto));
-    mockMvc
-        .perform(get("/book-copies"))
+    when(bookCopyService.getAll(null, null, null)).thenReturn(List.of(response));
+    mockMvc.perform(get("/book-copies"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
 
   @Test
   void getById() throws Exception {
-    when(bookCopyService.getById(copyId)).thenReturn(dto);
-    mockMvc
-        .perform(get("/book-copies/{id}", copyId))
+    when(bookCopyService.getById(copyId)).thenReturn(response);
+    mockMvc.perform(get("/book-copies/{id}", copyId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(copyId.toString()));
   }
 
   @Test
-  void getAvailable() throws Exception {
-    when(bookCopyService.getAvailable()).thenReturn(List.of(dto));
-    mockMvc
-        .perform(get("/book-copies/available"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.size()").value(1));
+  void create() throws Exception {
+    var request = new CreateBookCopyRequest(UUID.randomUUID(), UUID.randomUUID(),
+        BookCopyFormat.PHYSICAL, "9781234567890", BigDecimal.valueOf(20.00),
+        BookCopyStatus.AVAILABLE);
+    when(bookCopyService.create(any())).thenReturn(response);
+
+    mockMvc.perform(post("/book-copies")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(copyId.toString()));
   }
 
   @Test
-  void getByBook() throws Exception {
-    when(bookCopyService.getByBook(any())).thenReturn(List.of(dto));
-    mockMvc
-        .perform(get("/book-copies").param("bookId", UUID.randomUUID().toString()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.size()").value(1));
-  }
+  void update() throws Exception {
+    var request = new UpdateBookCopyRequest(BookCopyFormat.DIGITAL,
+        BigDecimal.valueOf(25.00), BookCopyStatus.DAMAGED);
+    when(bookCopyService.update(eq(copyId), any())).thenReturn(response);
 
-  @Test
-  void getAvailableByBook() throws Exception {
-    when(bookCopyService.getAvailableByBook(any())).thenReturn(List.of(dto));
-    mockMvc
-        .perform(get("/book-copies/available").param("bookId", UUID.randomUUID().toString()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.size()").value(1));
-  }
-
-  @Test
-  void getByLibrary() throws Exception {
-    when(bookCopyService.getByLibrary(any())).thenReturn(List.of(dto));
-    mockMvc
-        .perform(get("/book-copies").param("libraryId", UUID.randomUUID().toString()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.size()").value(1));
-  }
-
-  @Test
-  void countAvailableByBook() throws Exception {
-    when(bookCopyService.countAvailableByBook(any())).thenReturn(5L);
-    mockMvc
-        .perform(get("/book-copies/count/available").param("bookId", UUID.randomUUID().toString()))
-        .andExpect(status().isOk())
-        .andExpect(content().string("5"));
-  }
-
-  @Test
-  void updateStatus() throws Exception {
-    when(bookCopyService.updateStatus(eq(copyId), eq(BookCopyStatus.DAMAGED))).thenReturn(dto);
-    mockMvc
-        .perform(patch("/book-copies/{id}/status", copyId).param("status", "DAMAGED"))
+    mockMvc.perform(put("/book-copies/{id}", copyId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(copyId.toString()));
+  }
+
+  @Test
+  void deleteBookCopy() throws Exception {
+    doNothing().when(bookCopyService).delete(copyId);
+    mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/book-copies/{id}", copyId))
+        .andExpect(status().isNoContent());
   }
 }

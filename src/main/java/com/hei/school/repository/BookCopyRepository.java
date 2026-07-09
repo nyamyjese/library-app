@@ -12,9 +12,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookCopyRepository extends JpaRepository<BookCopy, UUID> {
 
-  List<BookCopy> findAllByStatus(BookCopyStatus status);
+  List<BookCopy> findByStatus(BookCopyStatus status);
 
-  List<BookCopy> findAllByBook_Id(UUID bookId);
+  List<BookCopy> findByBookId(UUID bookId);
+
+  List<BookCopy> findByLibraryId(UUID libraryId);
 
   List<BookCopy> findAllByLibrary_Id(UUID libraryId);
 

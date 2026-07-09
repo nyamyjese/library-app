@@ -4,14 +4,16 @@ import com.hei.school.dto.response.StockMovementResponse;
 import com.hei.school.entity.enums.MovementReason;
 import com.hei.school.entity.enums.MovementType;
 import com.hei.school.service.StockMovementService;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/stock-movements")
+@RequiredArgsConstructor
 public class StockMovementController {
 
   private final StockMovementService stockMovementService;
@@ -23,8 +25,14 @@ public class StockMovementController {
   }
 
   @GetMapping
-  public List<StockMovementResponse> getAll() {
-    return stockMovementService.getAll();
+  public List<StockMovementResponse> getAll(
+      @RequestParam(required = false) UUID bookCopyId,
+      @RequestParam(required = false) UUID arrivalId,
+      @RequestParam(required = false) MovementType movementType,
+      @RequestParam(required = false) MovementReason reason,
+      @RequestParam(required = false) Instant from,
+      @RequestParam(required = false) Instant to) {
+    return stockMovementService.getAll(bookCopyId, movementType, reason, from, to);
   }
 
   @GetMapping("/{id}")
@@ -32,23 +40,14 @@ public class StockMovementController {
     return stockMovementService.getById(id);
   }
 
-  @GetMapping(params = "bookCopyId")
-  public List<StockMovementResponse> getByBookCopyId(@RequestParam UUID bookCopyId) {
-    return stockMovementService.getByBookCopyId(bookCopyId);
+  @PutMapping("/{id}")
+  public StockMovementResponse update(@PathVariable UUID id) {
+    return stockMovementService.update(id);
   }
 
-  @GetMapping(params = "arrivalId")
-  public List<StockMovementResponse> getByArrivalId(@RequestParam UUID arrivalId) {
-    return stockMovementService.getByArrivalId(arrivalId);
-  }
-
-  @GetMapping(params = "movementType")
-  public List<StockMovementResponse> getByMovementType(@RequestParam MovementType movementType) {
-    return stockMovementService.getByMovementType(movementType);
-  }
-
-  @GetMapping(params = "reason")
-  public List<StockMovementResponse> getByReason(@RequestParam MovementReason reason) {
-    return stockMovementService.getByReason(reason);
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    stockMovementService.delete(id);
   }
 }

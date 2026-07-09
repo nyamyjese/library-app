@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.hei.school.dto.response.BookCopyStockResponse;
-import com.hei.school.dto.response.BookStockResponse;
+import com.hei.school.dto.response.BookStockStatusResponse;
 import com.hei.school.dto.response.LowStockResponse;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.BookCopy;
@@ -44,34 +44,31 @@ class StockServiceTest {
     book.setId(bookId);
     book.setTitle("Test Book");
 
-    availableCopy =
-        BookCopy.builder()
-            .id(copyId)
-            .format(BookCopyFormat.PHYSICAL)
-            .isbn("978-1234567890")
-            .sellingPrice(BigDecimal.valueOf(20.00))
-            .status(BookCopyStatus.AVAILABLE)
-            .book(book)
-            .library(library)
-            .build();
+    availableCopy = BookCopy.builder()
+        .id(copyId)
+        .format(BookCopyFormat.PHYSICAL)
+        .isbn("978-1234567890")
+        .sellingPrice(BigDecimal.valueOf(20.00))
+        .status(BookCopyStatus.AVAILABLE)
+        .book(book)
+        .library(library)
+        .build();
 
-    damagedCopy =
-        BookCopy.builder()
-            .id(UUID.randomUUID())
-            .format(BookCopyFormat.PHYSICAL)
-            .isbn("978-1234567890")
-            .sellingPrice(BigDecimal.valueOf(15.00))
-            .status(BookCopyStatus.DAMAGED)
-            .book(book)
-            .library(library)
-            .build();
+    damagedCopy = BookCopy.builder()
+        .id(UUID.randomUUID())
+        .format(BookCopyFormat.PHYSICAL)
+        .isbn("978-1234567890")
+        .sellingPrice(BigDecimal.valueOf(15.00))
+        .status(BookCopyStatus.DAMAGED)
+        .book(book)
+        .library(library)
+        .build();
   }
 
   @Test
   void getStockByBook_WithCopies() {
-    when(bookCopyRepository.findAllByBook_Id(bookId))
-        .thenReturn(List.of(availableCopy, damagedCopy));
-    BookStockResponse result = stockService.getStockByBook(bookId);
+    when(bookCopyRepository.findByBookId(bookId)).thenReturn(List.of(availableCopy, damagedCopy));
+    BookStockStatusResponse result = stockService.getStockByBook(bookId);
     assertThat(result.bookId()).isEqualTo(bookId);
     assertThat(result.totalCopies()).isEqualTo(2);
     assertThat(result.availableCopies()).isEqualTo(1);
@@ -80,23 +77,23 @@ class StockServiceTest {
 
   @Test
   void getStockByBook_Empty() {
-    when(bookCopyRepository.findAllByBook_Id(bookId)).thenReturn(List.of());
-    BookStockResponse result = stockService.getStockByBook(bookId);
+    when(bookCopyRepository.findByBookId(bookId)).thenReturn(List.of());
+    BookStockStatusResponse result = stockService.getStockByBook(bookId);
     assertThat(result.totalCopies()).isZero();
   }
 
   @Test
   void getAllBooksStock() {
     when(bookCopyRepository.findDistinctBookIds()).thenReturn(List.of(bookId));
-    when(bookCopyRepository.findAllByBook_Id(bookId)).thenReturn(List.of(availableCopy));
-    List<BookStockResponse> result = stockService.getAllBooksStock();
+    when(bookCopyRepository.findByBookId(bookId)).thenReturn(List.of(availableCopy));
+    List<BookStockStatusResponse> result = stockService.getAllBooksStock();
     assertThat(result).hasSize(1);
   }
 
   @Test
   void getAllBooksStock_Empty() {
     when(bookCopyRepository.findDistinctBookIds()).thenReturn(List.of());
-    List<BookStockResponse> result = stockService.getAllBooksStock();
+    List<BookStockStatusResponse> result = stockService.getAllBooksStock();
     assertThat(result).isEmpty();
   }
 

@@ -4,6 +4,8 @@ import com.hei.school.dto.request.CreateSaleRequest;
 import com.hei.school.dto.request.UpdateSaleRequest;
 import com.hei.school.dto.response.SaleResponse;
 import com.hei.school.entity.*;
+import com.hei.school.entity.enums.MovementReason;
+import com.hei.school.entity.enums.MovementType;
 import com.hei.school.exception.NotFoundException;
 import com.hei.school.mapper.SaleItemMapper;
 import com.hei.school.mapper.SaleMapper;
@@ -25,6 +27,7 @@ public class SaleService {
   private final CustomerRepository customerRepository;
   private final LibraryRepository libraryRepository;
   private final BookCopyRepository bookCopyRepository;
+  private final StockMovementRepository stockMovementRepository;
   private final SaleMapper saleMapper;
   private final SaleItemMapper saleItemMapper;
 
@@ -44,10 +47,8 @@ public class SaleService {
                 () ->
                     new NotFoundException("Library with id " + request.libraryId() + " not found"));
 
-    // Save the sale without items
     Sale sale = saleMapper.toEntity(request, customer, library);
 
-    // Create sale items and calculate total
     List<SaleItem> saleItems =
         request.saleItems().stream()
             .map(
@@ -67,7 +68,6 @@ public class SaleService {
 
     saleItems.forEach(sale.getSaleItems()::add);
 
-    // Calculate and update totalAmount
     BigDecimal totalAmount =
         saleItems.stream()
             .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
@@ -76,6 +76,20 @@ public class SaleService {
     sale.setTotalAmount(totalAmount);
 
     Sale finalSale = saleRepository.save(sale);
+
+    finalSale
+        .getSaleItems()
+        .forEach(
+            saleItem -> {
+              StockMovement movement = new StockMovement();
+              movement.setMovementType(MovementType.OUT);
+              movement.setReason(MovementReason.SALE);
+              movement.setQuantity(saleItem.getQuantity());
+              movement.setBookCopy(saleItem.getBookCopy());
+              movement.setSaleItem(saleItem);
+              movement.setMovementDate(Instant.now());
+              stockMovementRepository.save(movement);
+            });
 
     return saleMapper.toResponse(finalSale);
   }
@@ -117,7 +131,6 @@ public class SaleService {
     saleItemRepository.deleteBySaleId(id);
     sale.getSaleItems().clear();
 
-    // Recreate new items
     List<SaleItem> saleItems =
         request.saleItems().stream()
             .map(
@@ -139,7 +152,6 @@ public class SaleService {
 
     saleItemRepository.saveAll(saleItems);
 
-    // Recalculate totalAmount
     BigDecimal totalAmount =
         saleItems.stream()
             .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))

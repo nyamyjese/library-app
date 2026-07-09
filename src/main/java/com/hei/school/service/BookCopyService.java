@@ -1,65 +1,119 @@
 package com.hei.school.service;
 
-import com.hei.school.dto.BookCopyDTO;
+import com.hei.school.dto.request.CreateBookCopyRequest;
+import com.hei.school.dto.request.LowStockResponse;
+import com.hei.school.dto.request.UpdateBookCopyRequest;
+import com.hei.school.dto.response.BookCopyResponse;
+import com.hei.school.entity.Book;
 import com.hei.school.entity.BookCopy;
+import com.hei.school.entity.Library;
 import com.hei.school.entity.enums.BookCopyStatus;
+import com.hei.school.exception.NotFoundException;
 import com.hei.school.mapper.BookCopyMapper;
 import com.hei.school.repository.BookCopyRepository;
+import com.hei.school.repository.BookRepository;
+import com.hei.school.repository.LibraryRepository;
+import com.hei.school.repository.StockMovementRepository;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BookCopyService {
 
   private final BookCopyRepository bookCopyRepository;
+  private final BookRepository bookRepository;
+  private final LibraryRepository libraryRepository;
+  private final StockMovementRepository stockMovementRepository;
   private final BookCopyMapper bookCopyMapper;
 
-  public BookCopyDTO getById(UUID id) {
-    return bookCopyMapper.toDTO(
+  public BookCopyResponse create(CreateBookCopyRequest request) {
+    Book book =
+        bookRepository
+            .findById(request.bookId())
+            .orElseThrow(
+                () -> new NotFoundException("Book with id " + request.bookId() + " not found"));
+    Library library =
+        libraryRepository
+            .findById(request.libraryId())
+            .orElseThrow(
+                () ->
+                    new NotFoundException("Library with id " + request.libraryId() + " not found"));
+    BookCopy bookCopy = bookCopyMapper.toEntity(request, book, library);
+    BookCopy saved = bookCopyRepository.save(bookCopy);
+    return bookCopyMapper.toResponse(saved);
+  }
+
+  public List<BookCopyResponse> getAll(UUID bookId, UUID libraryId, BookCopyStatus status) {
+    if (bookId != null) {
+      return bookCopyRepository.findByBookId(bookId).stream()
+          .map(bookCopyMapper::toResponse)
+          .toList();
+    }
+    if (libraryId != null) {
+      return bookCopyRepository.findByLibraryId(libraryId).stream()
+          .map(bookCopyMapper::toResponse)
+          .toList();
+    }
+    if (status != null) {
+      return bookCopyRepository.findByStatus(status).stream()
+          .map(bookCopyMapper::toResponse)
+          .toList();
+    }
+    return bookCopyRepository.findAll().stream().map(bookCopyMapper::toResponse).toList();
+  }
+
+  public BookCopyResponse getById(UUID id) {
+    BookCopy bookCopy =
         bookCopyRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("BookCopy not found: id=" + id)));
+            .orElseThrow(() -> new NotFoundException("BookCopy with id " + id + " not found"));
+    return bookCopyMapper.toResponse(bookCopy);
   }
 
-  public List<BookCopyDTO> getAll() {
-    return bookCopyRepository.findAll().stream().map(bookCopyMapper::toDTO).toList();
-  }
-
-  public List<BookCopyDTO> getAvailable() {
-    return bookCopyRepository.findAllByStatus(BookCopyStatus.AVAILABLE).stream()
-        .map(bookCopyMapper::toDTO)
-        .toList();
-  }
-
-  public List<BookCopyDTO> getByBook(UUID bookId) {
-    return bookCopyRepository.findAllByBook_Id(bookId).stream().map(bookCopyMapper::toDTO).toList();
-  }
-
-  public List<BookCopyDTO> getAvailableByBook(UUID bookId) {
-    return bookCopyRepository.findAllByBook_IdAndStatus(bookId, BookCopyStatus.AVAILABLE).stream()
-        .map(bookCopyMapper::toDTO)
-        .toList();
-  }
-
-  public List<BookCopyDTO> getByLibrary(UUID libraryId) {
-    return bookCopyRepository.findAllByLibrary_Id(libraryId).stream()
-        .map(bookCopyMapper::toDTO)
-        .toList();
-  }
-
-  public BookCopyDTO updateStatus(UUID id, BookCopyStatus newStatus) {
-    BookCopy copy =
+  public BookCopyResponse update(UUID id, UpdateBookCopyRequest request) {
+    BookCopy bookCopy =
         bookCopyRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("BookCopy not found: id=" + id));
-    copy.setStatus(newStatus);
-    return bookCopyMapper.toDTO(bookCopyRepository.save(copy));
+            .orElseThrow(() -> new NotFoundException("BookCopy with id " + id + " not found"));
+    bookCopy.setFormat(request.format());
+    bookCopy.setSellingPrice(request.sellingPrice());
+    bookCopy.setStatus(request.status());
+    BookCopy saved = bookCopyRepository.save(bookCopy);
+    return bookCopyMapper.toResponse(saved);
   }
 
-  public long countAvailableByBook(UUID bookId) {
-    return bookCopyRepository.countByBook_IdAndStatus(bookId, BookCopyStatus.AVAILABLE);
+  public void delete(UUID id) {
+    bookCopyRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("BookCopy with id " + id + " not found"));
+    bookCopyRepository.deleteById(id);
+  }
+
+  public List<LowStockResponse> getLowStock(Integer threshold) {
+    int limit = threshold != null ? threshold : 3;
+    List<UUID> lowStockIds = stockMovementRepository.findBookCopyIdsWithLowStock(limit);
+    return lowStockIds.stream()
+        .map(
+            bookCopyId -> {
+              BookCopy bookCopy =
+                  bookCopyRepository
+                      .findById(bookCopyId)
+                      .orElseThrow(
+                          () ->
+                              new NotFoundException(
+                                  "BookCopy with id " + bookCopyId + " not found"));
+              Integer currentStock = stockMovementRepository.getTotalStockByBookCopyId(bookCopyId);
+              return new LowStockResponse(
+                  bookCopy.getId(),
+                  bookCopy.getBook().getId(),
+                  bookCopy.getBook().getTitle(),
+                  bookCopy.getFormat(),
+                  bookCopy.getIsbn(),
+                  currentStock);
+            })
+        .toList();
   }
 }

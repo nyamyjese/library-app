@@ -28,16 +28,24 @@ public class GlobalExceptionHandler {
     return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
   }
 
+  @ExceptionHandler(ConflictException.class)
+  public ResponseEntity<Map<String, Object>> handleConflictException(ConflictException ex) {
+    return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, Object>> handleValidationException(
       MethodArgumentNotValidException ex) {
     Map<String, Object> errors = new HashMap<>();
+
     ex.getBindingResult()
         .getFieldErrors()
         .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
     Map<String, Object> response = new HashMap<>();
     response.put("status", HttpStatus.BAD_REQUEST.value());
     response.put("errors", errors);
+
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
@@ -49,14 +57,16 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
     return buildResponse(
-        HttpStatus.INTERNAL_SERVER_ERROR, "An error has occurred  : " + ex.getMessage());
+        HttpStatus.INTERNAL_SERVER_ERROR, "An error has occurred : " + ex.getMessage());
   }
 
   private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
     Map<String, Object> response = new HashMap<>();
+
     response.put("status", status.value());
     response.put("error", status.getReasonPhrase());
     response.put("message", message);
+
     return ResponseEntity.status(status).body(response);
   }
 }

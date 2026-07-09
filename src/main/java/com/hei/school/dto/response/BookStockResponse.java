@@ -3,10 +3,9 @@ package com.hei.school.dto.response;
 import java.util.UUID;
 
 public record BookStockResponse(
-    UUID bookId,
+    UUID bookCopyId,
     String bookTitle,
-    long totalCopies,
-    long availableCopies,
-    long soldCopies,
-    long damagedCopies,
-    long lostCopies) {}
+    String bookCopyIsbn,
+    Integer totalIn,
+    Integer totalOut,
+    Integer currentStock) {}

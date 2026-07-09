@@ -1,57 +1,66 @@
 package com.hei.school.endpoint.rest.controller;
 
-import com.hei.school.dto.BookCopyDTO;
+import com.hei.school.dto.request.CreateBookCopyRequest;
+import com.hei.school.dto.request.LowStockResponse;
+import com.hei.school.dto.request.UpdateBookCopyRequest;
+import com.hei.school.dto.response.BookCopyResponse;
+import com.hei.school.dto.response.BookStockResponse;
 import com.hei.school.entity.enums.BookCopyStatus;
 import com.hei.school.service.BookCopyService;
+import com.hei.school.service.StockMovementService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/book-copies")
+@RequiredArgsConstructor
 public class BookCopyController {
 
   private final BookCopyService bookCopyService;
+  private final StockMovementService stockMovementService;
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public BookCopyResponse create(@RequestBody @Valid CreateBookCopyRequest request) {
+    return bookCopyService.create(request);
+  }
 
   @GetMapping
-  public List<BookCopyDTO> getAll() {
-    return bookCopyService.getAll();
+  public List<BookCopyResponse> getAll(
+      @RequestParam(required = false) UUID bookId,
+      @RequestParam(required = false) UUID libraryId,
+      @RequestParam(required = false) BookCopyStatus status) {
+    return bookCopyService.getAll(bookId, libraryId, status);
   }
 
   @GetMapping("/{id}")
-  public BookCopyDTO getById(@PathVariable UUID id) {
+  public BookCopyResponse getById(@PathVariable UUID id) {
     return bookCopyService.getById(id);
   }
 
-  @GetMapping("/available")
-  public List<BookCopyDTO> getAvailable() {
-    return bookCopyService.getAvailable();
+  @PutMapping("/{id}")
+  public BookCopyResponse update(
+      @PathVariable UUID id, @RequestBody @Valid UpdateBookCopyRequest request) {
+    return bookCopyService.update(id, request);
   }
 
-  @GetMapping(params = "bookId")
-  public List<BookCopyDTO> getByBook(@RequestParam UUID bookId) {
-    return bookCopyService.getByBook(bookId);
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    bookCopyService.delete(id);
   }
 
-  @GetMapping(value = "/available", params = "bookId")
-  public List<BookCopyDTO> getAvailableByBook(@RequestParam UUID bookId) {
-    return bookCopyService.getAvailableByBook(bookId);
+  @GetMapping("/{bookCopyId}/stock")
+  public BookStockResponse getStock(@PathVariable UUID bookCopyId) {
+    return stockMovementService.getStockByBookCopyId(bookCopyId);
   }
 
-  @GetMapping(params = "libraryId")
-  public List<BookCopyDTO> getByLibrary(@RequestParam UUID libraryId) {
-    return bookCopyService.getByLibrary(libraryId);
-  }
-
-  @GetMapping("/count/available")
-  public long countAvailableByBook(@RequestParam UUID bookId) {
-    return bookCopyService.countAvailableByBook(bookId);
-  }
-
-  @PatchMapping("/{id}/status")
-  public BookCopyDTO updateStatus(@PathVariable UUID id, @RequestParam BookCopyStatus status) {
-    return bookCopyService.updateStatus(id, status);
+  @GetMapping("/low-stock")
+  public List<LowStockResponse> getLowStock(@RequestParam(required = false) Integer threshold) {
+    return bookCopyService.getLowStock(threshold);
   }
 }

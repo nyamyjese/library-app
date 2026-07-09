@@ -1,7 +1,7 @@
 package com.hei.school.endpoint.rest.controller;
 
 import com.hei.school.dto.response.BookCopyStockResponse;
-import com.hei.school.dto.response.BookStockResponse;
+import com.hei.school.dto.response.BookStockStatusResponse;
 import com.hei.school.dto.response.LowStockResponse;
 import com.hei.school.service.StockService;
 import java.util.List;
@@ -17,12 +17,12 @@ public class StockController {
   private final StockService stockService;
 
   @GetMapping("/books")
-  public List<BookStockResponse> getAllBooksStock() {
+  public List<BookStockStatusResponse> getAllBooksStock() {
     return stockService.getAllBooksStock();
   }
 
   @GetMapping("/books/{bookId}")
-  public BookStockResponse getStockByBook(@PathVariable UUID bookId) {
+  public BookStockStatusResponse getStockByBook(@PathVariable UUID bookId) {
     return stockService.getStockByBook(bookId);
   }
 

@@ -1,7 +1,7 @@
 package com.hei.school.service;
 
 import com.hei.school.dto.response.BookCopyStockResponse;
-import com.hei.school.dto.response.BookStockResponse;
+import com.hei.school.dto.response.BookStockStatusResponse;
 import com.hei.school.dto.response.LowStockResponse;
 import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.enums.BookCopyStatus;
@@ -19,13 +19,13 @@ public class StockService {
   private final BookCopyRepository bookCopyRepository;
   private static final long DEFAULT_LOW_STOCK_THRESHOLD = 3;
 
-  public BookStockResponse getStockByBook(UUID bookId) {
-    List<BookCopy> copies = bookCopyRepository.findAllByBook_Id(bookId);
+  public BookStockStatusResponse getStockByBook(UUID bookId) {
+    List<BookCopy> copies = bookCopyRepository.findByBookId(bookId);
     if (copies.isEmpty()) {
-      return new BookStockResponse(bookId, null, 0, 0, 0, 0, 0);
+      return new BookStockStatusResponse(bookId, null, 0, 0, 0, 0, 0);
     }
     String bookTitle = copies.get(0).getBook().getTitle();
-    return new BookStockResponse(
+    return new BookStockStatusResponse(
         bookId,
         bookTitle,
         copies.size(),
@@ -35,9 +35,9 @@ public class StockService {
         countByStatus(copies, BookCopyStatus.LOST));
   }
 
-  public List<BookStockResponse> getAllBooksStock() {
+  public List<BookStockStatusResponse> getAllBooksStock() {
     List<UUID> bookIds = bookCopyRepository.findDistinctBookIds();
-    List<BookStockResponse> result = new ArrayList<>();
+    List<BookStockStatusResponse> result = new ArrayList<>();
     for (UUID bookId : bookIds) {
       result.add(getStockByBook(bookId));
     }

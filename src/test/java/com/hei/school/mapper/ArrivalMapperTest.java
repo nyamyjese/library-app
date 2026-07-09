@@ -25,8 +25,8 @@ class ArrivalMapperTest {
     BookCopy bookCopy = BookCopy.builder().id(bookCopyId).build();
     Instant now = Instant.now();
 
-    CreateArrivalRequest request =
-        new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), now);
+    CreateArrivalRequest request = new CreateArrivalRequest(bookCopyId, 10,
+        BigDecimal.valueOf(15.00), now);
     Arrival arrival = mapper.toEntity(request, bookCopy);
 
     assertThat(arrival.getBookCopy().getId()).isEqualTo(bookCopyId);
@@ -49,16 +49,15 @@ class ArrivalMapperTest {
     Library library = new Library();
     library.setId(UUID.randomUUID());
 
-    BookCopy bookCopy =
-        BookCopy.builder()
-            .id(bookCopyId)
-            .book(book)
-            .isbn("978-1234567890")
-            .status(BookCopyStatus.AVAILABLE)
-            .format(BookCopyFormat.PHYSICAL)
-            .sellingPrice(BigDecimal.valueOf(20.00))
-            .library(library)
-            .build();
+    BookCopy bookCopy = BookCopy.builder()
+        .id(bookCopyId)
+        .book(book)
+        .isbn("978-1234567890")
+        .status(BookCopyStatus.AVAILABLE)
+        .format(BookCopyFormat.PHYSICAL)
+        .sellingPrice(BigDecimal.valueOf(20.00))
+        .library(library)
+        .build();
 
     Arrival arrival = new Arrival();
     arrival.setId(arrivalId);

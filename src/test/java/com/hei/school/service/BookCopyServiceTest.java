@@ -46,25 +46,27 @@ class BookCopyServiceTest {
     Book book = new Book();
     book.setId(bookId);
 
-    bookCopy = BookCopy.builder()
-        .id(copyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    bookCopy =
+        BookCopy.builder()
+            .id(copyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
-    dto = BookCopyDTO.builder()
-        .id(copyId)
-        .bookId(bookId)
-        .libraryId(libraryId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .build();
+    dto =
+        BookCopyDTO.builder()
+            .id(copyId)
+            .bookId(bookId)
+            .libraryId(libraryId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .build();
   }
 
   @Test
@@ -93,7 +95,8 @@ class BookCopyServiceTest {
 
   @Test
   void getAvailable() {
-    when(bookCopyRepository.findAllByStatus(BookCopyStatus.AVAILABLE)).thenReturn(List.of(bookCopy));
+    when(bookCopyRepository.findAllByStatus(BookCopyStatus.AVAILABLE))
+        .thenReturn(List.of(bookCopy));
     when(bookCopyMapper.toDTO(bookCopy)).thenReturn(dto);
     List<BookCopyDTO> result = bookCopyService.getAvailable();
     assertThat(result).hasSize(1);

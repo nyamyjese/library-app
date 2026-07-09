@@ -16,8 +16,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ArrivalController.class)
@@ -43,7 +43,8 @@ class ArrivalControllerTest {
 
   @Test
   void createArrival() throws Exception {
-    var request = new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
+    var request =
+        new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
     when(arrivalService.createArrival(any())).thenReturn(response);
 
     mockMvc

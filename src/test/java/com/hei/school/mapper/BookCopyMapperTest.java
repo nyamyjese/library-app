@@ -28,15 +28,16 @@ class BookCopyMapperTest {
     Book book = new Book();
     book.setId(bookId);
 
-    BookCopy copy = BookCopy.builder()
-        .id(copyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    BookCopy copy =
+        BookCopy.builder()
+            .id(copyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
     BookCopyDTO dto = mapper.toDTO(copy);
 
@@ -51,13 +52,14 @@ class BookCopyMapperTest {
 
   @Test
   void toDTO_WithNullBookAndLibrary() {
-    BookCopy copy = BookCopy.builder()
-        .id(UUID.randomUUID())
-        .format(BookCopyFormat.DIGITAL)
-        .isbn("978-0000000000")
-        .sellingPrice(BigDecimal.TEN)
-        .status(BookCopyStatus.DAMAGED)
-        .build();
+    BookCopy copy =
+        BookCopy.builder()
+            .id(UUID.randomUUID())
+            .format(BookCopyFormat.DIGITAL)
+            .isbn("978-0000000000")
+            .sellingPrice(BigDecimal.TEN)
+            .status(BookCopyStatus.DAMAGED)
+            .build();
 
     BookCopyDTO dto = mapper.toDTO(copy);
 

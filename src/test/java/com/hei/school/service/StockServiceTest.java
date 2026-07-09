@@ -44,30 +44,33 @@ class StockServiceTest {
     book.setId(bookId);
     book.setTitle("Test Book");
 
-    availableCopy = BookCopy.builder()
-        .id(copyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    availableCopy =
+        BookCopy.builder()
+            .id(copyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
-    damagedCopy = BookCopy.builder()
-        .id(UUID.randomUUID())
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(15.00))
-        .status(BookCopyStatus.DAMAGED)
-        .book(book)
-        .library(library)
-        .build();
+    damagedCopy =
+        BookCopy.builder()
+            .id(UUID.randomUUID())
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(15.00))
+            .status(BookCopyStatus.DAMAGED)
+            .book(book)
+            .library(library)
+            .build();
   }
 
   @Test
   void getStockByBook_WithCopies() {
-    when(bookCopyRepository.findAllByBook_Id(bookId)).thenReturn(List.of(availableCopy, damagedCopy));
+    when(bookCopyRepository.findAllByBook_Id(bookId))
+        .thenReturn(List.of(availableCopy, damagedCopy));
     BookStockResponse result = stockService.getStockByBook(bookId);
     assertThat(result.bookId()).isEqualTo(bookId);
     assertThat(result.totalCopies()).isEqualTo(2);

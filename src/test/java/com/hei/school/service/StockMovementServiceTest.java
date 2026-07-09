@@ -54,15 +54,16 @@ class StockMovementServiceTest {
     book.setId(UUID.randomUUID());
     book.setTitle("Test Book");
 
-    bookCopy = BookCopy.builder()
-        .id(bookCopyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    bookCopy =
+        BookCopy.builder()
+            .id(bookCopyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
     arrival = new Arrival();
     arrival.setId(arrivalId);
@@ -80,20 +81,38 @@ class StockMovementServiceTest {
     movement.setArrival(arrival);
     movement.setMovementDate(Instant.now());
 
-    response = new StockMovementResponse(movementId, 10, MovementType.IN, MovementReason.ARRIVAL,
-        bookCopyId, "Test Book", "978-1234567890", arrivalId, null, movement.getMovementDate());
+    response =
+        new StockMovementResponse(
+            movementId,
+            10,
+            MovementType.IN,
+            MovementReason.ARRIVAL,
+            bookCopyId,
+            "Test Book",
+            "978-1234567890",
+            arrivalId,
+            null,
+            movement.getMovementDate());
   }
 
   @Test
   void recordArrivalMovement_Success() {
     when(bookCopyRepository.findById(bookCopyId)).thenReturn(Optional.of(bookCopy));
     when(arrivalRepository.findById(arrivalId)).thenReturn(Optional.of(arrival));
-    when(stockMovementMapper.toEntity(anyInt(), eq(MovementType.IN), eq(MovementReason.ARRIVAL),
-        eq(bookCopy), eq(arrival), isNull(), any(Instant.class))).thenReturn(movement);
+    when(stockMovementMapper.toEntity(
+            anyInt(),
+            eq(MovementType.IN),
+            eq(MovementReason.ARRIVAL),
+            eq(bookCopy),
+            eq(arrival),
+            isNull(),
+            any(Instant.class)))
+        .thenReturn(movement);
     when(stockMovementRepository.save(movement)).thenReturn(movement);
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
 
-    StockMovementResponse result = stockMovementService.recordArrivalMovement(bookCopyId, arrivalId);
+    StockMovementResponse result =
+        stockMovementService.recordArrivalMovement(bookCopyId, arrivalId);
     assertThat(result.movementType()).isEqualTo(MovementType.IN);
   }
 
@@ -155,7 +174,8 @@ class StockMovementServiceTest {
 
   @Test
   void getByMovementType() {
-    when(stockMovementRepository.findAllByMovementType(MovementType.IN)).thenReturn(List.of(movement));
+    when(stockMovementRepository.findAllByMovementType(MovementType.IN))
+        .thenReturn(List.of(movement));
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
     List<StockMovementResponse> result = stockMovementService.getByMovementType(MovementType.IN);
     assertThat(result).hasSize(1);
@@ -163,7 +183,8 @@ class StockMovementServiceTest {
 
   @Test
   void getByReason() {
-    when(stockMovementRepository.findAllByReason(MovementReason.ARRIVAL)).thenReturn(List.of(movement));
+    when(stockMovementRepository.findAllByReason(MovementReason.ARRIVAL))
+        .thenReturn(List.of(movement));
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
     List<StockMovementResponse> result = stockMovementService.getByReason(MovementReason.ARRIVAL);
     assertThat(result).hasSize(1);

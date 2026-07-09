@@ -2,7 +2,6 @@ package com.hei.school.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.hei.school.dto.request.CreateArrivalRequest;
@@ -55,15 +54,16 @@ class ArrivalServiceTest {
     book.setId(bookId);
     book.setTitle("Test Book");
 
-    bookCopy = BookCopy.builder()
-        .id(bookCopyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    bookCopy =
+        BookCopy.builder()
+            .id(bookCopyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
     arrival = new Arrival();
     arrival.setId(arrivalId);
@@ -72,12 +72,19 @@ class ArrivalServiceTest {
     arrival.setArrivalDate(Instant.now());
     arrival.setBookCopy(bookCopy);
 
-    response = new ArrivalResponse(arrivalId, bookCopyId, "Test Book",
-        "978-1234567890", 10, BigDecimal.valueOf(15.00),
-        BigDecimal.valueOf(150.00), arrival.getArrivalDate());
+    response =
+        new ArrivalResponse(
+            arrivalId,
+            bookCopyId,
+            "Test Book",
+            "978-1234567890",
+            10,
+            BigDecimal.valueOf(15.00),
+            BigDecimal.valueOf(150.00),
+            arrival.getArrivalDate());
 
-    createRequest = new CreateArrivalRequest(bookCopyId, 10,
-        BigDecimal.valueOf(15.00), Instant.now());
+    createRequest =
+        new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
   }
 
   @Test
@@ -103,8 +110,8 @@ class ArrivalServiceTest {
 
   @Test
   void updateArrival_Success() {
-    UpdateArrivalRequest updateRequest = new UpdateArrivalRequest(20,
-        BigDecimal.valueOf(12.00), Instant.now());
+    UpdateArrivalRequest updateRequest =
+        new UpdateArrivalRequest(20, BigDecimal.valueOf(12.00), Instant.now());
     when(arrivalRepository.findById(arrivalId)).thenReturn(Optional.of(arrival));
     when(arrivalRepository.save(arrival)).thenReturn(arrival);
     when(arrivalMapper.toResponse(arrival)).thenReturn(response);
@@ -115,8 +122,8 @@ class ArrivalServiceTest {
 
   @Test
   void updateArrival_NotFound() {
-    UpdateArrivalRequest updateRequest = new UpdateArrivalRequest(20,
-        BigDecimal.valueOf(12.00), Instant.now());
+    UpdateArrivalRequest updateRequest =
+        new UpdateArrivalRequest(20, BigDecimal.valueOf(12.00), Instant.now());
     when(arrivalRepository.findById(arrivalId)).thenReturn(Optional.empty());
     assertThatThrownBy(() -> arrivalService.updateArrival(arrivalId, updateRequest))
         .isInstanceOf(RuntimeException.class)

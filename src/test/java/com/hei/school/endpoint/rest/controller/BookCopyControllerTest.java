@@ -27,20 +27,22 @@ class BookCopyControllerTest {
   @MockBean private BookCopyService bookCopyService;
 
   private final UUID copyId = UUID.randomUUID();
-  private final BookCopyDTO dto = BookCopyDTO.builder()
-      .id(copyId)
-      .bookId(UUID.randomUUID())
-      .libraryId(UUID.randomUUID())
-      .format(BookCopyFormat.PHYSICAL)
-      .isbn("978-1234567890")
-      .sellingPrice(BigDecimal.valueOf(20.00))
-      .status(BookCopyStatus.AVAILABLE)
-      .build();
+  private final BookCopyDTO dto =
+      BookCopyDTO.builder()
+          .id(copyId)
+          .bookId(UUID.randomUUID())
+          .libraryId(UUID.randomUUID())
+          .format(BookCopyFormat.PHYSICAL)
+          .isbn("978-1234567890")
+          .sellingPrice(BigDecimal.valueOf(20.00))
+          .status(BookCopyStatus.AVAILABLE)
+          .build();
 
   @Test
   void getAll() throws Exception {
     when(bookCopyService.getAll()).thenReturn(List.of(dto));
-    mockMvc.perform(get("/book-copies"))
+    mockMvc
+        .perform(get("/book-copies"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -48,7 +50,8 @@ class BookCopyControllerTest {
   @Test
   void getById() throws Exception {
     when(bookCopyService.getById(copyId)).thenReturn(dto);
-    mockMvc.perform(get("/book-copies/{id}", copyId))
+    mockMvc
+        .perform(get("/book-copies/{id}", copyId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(copyId.toString()));
   }
@@ -56,7 +59,8 @@ class BookCopyControllerTest {
   @Test
   void getAvailable() throws Exception {
     when(bookCopyService.getAvailable()).thenReturn(List.of(dto));
-    mockMvc.perform(get("/book-copies/available"))
+    mockMvc
+        .perform(get("/book-copies/available"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -64,7 +68,8 @@ class BookCopyControllerTest {
   @Test
   void getByBook() throws Exception {
     when(bookCopyService.getByBook(any())).thenReturn(List.of(dto));
-    mockMvc.perform(get("/book-copies").param("bookId", UUID.randomUUID().toString()))
+    mockMvc
+        .perform(get("/book-copies").param("bookId", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -72,7 +77,8 @@ class BookCopyControllerTest {
   @Test
   void getAvailableByBook() throws Exception {
     when(bookCopyService.getAvailableByBook(any())).thenReturn(List.of(dto));
-    mockMvc.perform(get("/book-copies/available").param("bookId", UUID.randomUUID().toString()))
+    mockMvc
+        .perform(get("/book-copies/available").param("bookId", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -80,7 +86,8 @@ class BookCopyControllerTest {
   @Test
   void getByLibrary() throws Exception {
     when(bookCopyService.getByLibrary(any())).thenReturn(List.of(dto));
-    mockMvc.perform(get("/book-copies").param("libraryId", UUID.randomUUID().toString()))
+    mockMvc
+        .perform(get("/book-copies").param("libraryId", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -88,7 +95,8 @@ class BookCopyControllerTest {
   @Test
   void countAvailableByBook() throws Exception {
     when(bookCopyService.countAvailableByBook(any())).thenReturn(5L);
-    mockMvc.perform(get("/book-copies/count/available").param("bookId", UUID.randomUUID().toString()))
+    mockMvc
+        .perform(get("/book-copies/count/available").param("bookId", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(content().string("5"));
   }
@@ -96,8 +104,8 @@ class BookCopyControllerTest {
   @Test
   void updateStatus() throws Exception {
     when(bookCopyService.updateStatus(eq(copyId), eq(BookCopyStatus.DAMAGED))).thenReturn(dto);
-    mockMvc.perform(patch("/book-copies/{id}/status", copyId)
-            .param("status", "DAMAGED"))
+    mockMvc
+        .perform(patch("/book-copies/{id}/status", copyId).param("status", "DAMAGED"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(copyId.toString()));
   }

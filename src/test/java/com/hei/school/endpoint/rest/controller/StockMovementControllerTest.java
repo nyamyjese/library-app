@@ -98,8 +98,7 @@ class StockMovementControllerTest {
     when(stockMovementService.getByMovementType(MovementType.IN)).thenReturn(List.of(response));
 
     mockMvc
-        .perform(
-            get("/stock-movements").param("movementType", MovementType.IN.name()))
+        .perform(get("/stock-movements").param("movementType", MovementType.IN.name()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -109,8 +108,7 @@ class StockMovementControllerTest {
     when(stockMovementService.getByReason(MovementReason.ARRIVAL)).thenReturn(List.of(response));
 
     mockMvc
-        .perform(
-            get("/stock-movements").param("reason", MovementReason.ARRIVAL.name()))
+        .perform(get("/stock-movements").param("reason", MovementReason.ARRIVAL.name()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }

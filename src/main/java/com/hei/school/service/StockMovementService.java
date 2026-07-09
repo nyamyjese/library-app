@@ -31,7 +31,6 @@ public class StockMovementService {
         bookCopyRepository
             .findById(bookCopyId)
             .orElseThrow(() -> new RuntimeException("BookCopy not found: id=" + bookCopyId));
-
     Arrival arrival =
         arrivalRepository
             .findById(arrivalId)

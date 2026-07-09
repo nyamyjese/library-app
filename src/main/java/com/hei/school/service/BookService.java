@@ -40,7 +40,7 @@ public class BookService {
   }
 
   public List<BookDTO> getByLibrary(UUID libraryId) {
-    return bookRepository.findByLibrary_LibraryId(libraryId).stream().map(this::toDTO).toList();
+    return bookRepository.findByLibrary_Id(libraryId).stream().map(this::toDTO).toList();
   }
 
   public List<BookDTO> getByYear(Integer year) {

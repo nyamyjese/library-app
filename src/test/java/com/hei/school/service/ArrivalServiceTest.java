@@ -56,15 +56,16 @@ class ArrivalServiceTest {
     book.setId(UUID.randomUUID());
     book.setTitle("Test Book");
 
-    bookCopy = BookCopy.builder()
-        .id(bookCopyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    bookCopy =
+        BookCopy.builder()
+            .id(bookCopyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
     arrival = new Arrival();
     arrival.setId(arrivalId);
@@ -73,14 +74,22 @@ class ArrivalServiceTest {
     arrival.setArrivalDate(Instant.now());
     arrival.setBookCopy(bookCopy);
 
-    response = new ArrivalResponse(arrivalId, bookCopyId, "Test Book",
-        "978-1234567890", 10, BigDecimal.valueOf(15.00),
-        BigDecimal.valueOf(150.00), arrival.getArrivalDate());
+    response =
+        new ArrivalResponse(
+            arrivalId,
+            bookCopyId,
+            "Test Book",
+            "978-1234567890",
+            10,
+            BigDecimal.valueOf(15.00),
+            BigDecimal.valueOf(150.00),
+            arrival.getArrivalDate());
   }
 
   @Test
   void create_Success() {
-    var request = new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
+    var request =
+        new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
     when(bookCopyRepository.findById(bookCopyId)).thenReturn(Optional.of(bookCopy));
     when(arrivalMapper.toEntity(request, bookCopy)).thenReturn(arrival);
     when(arrivalRepository.save(arrival)).thenReturn(arrival);
@@ -94,11 +103,11 @@ class ArrivalServiceTest {
 
   @Test
   void create_BookCopyNotFound() {
-    var request = new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
+    var request =
+        new CreateArrivalRequest(bookCopyId, 10, BigDecimal.valueOf(15.00), Instant.now());
     when(bookCopyRepository.findById(bookCopyId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> arrivalService.create(request))
-        .isInstanceOf(NotFoundException.class);
+    assertThatThrownBy(() -> arrivalService.create(request)).isInstanceOf(NotFoundException.class);
   }
 
   @Test

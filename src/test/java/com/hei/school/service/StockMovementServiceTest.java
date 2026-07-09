@@ -55,15 +55,16 @@ class StockMovementServiceTest {
     book.setId(UUID.randomUUID());
     book.setTitle("Test Book");
 
-    bookCopy = BookCopy.builder()
-        .id(bookCopyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    bookCopy =
+        BookCopy.builder()
+            .id(bookCopyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
     arrival = new Arrival();
     arrival.setId(arrivalId);
@@ -81,20 +82,38 @@ class StockMovementServiceTest {
     movement.setArrival(arrival);
     movement.setMovementDate(Instant.now());
 
-    response = new StockMovementResponse(movementId, 10, MovementType.IN, MovementReason.ARRIVAL,
-        bookCopyId, "Test Book", "978-1234567890", arrivalId, null, movement.getMovementDate());
+    response =
+        new StockMovementResponse(
+            movementId,
+            10,
+            MovementType.IN,
+            MovementReason.ARRIVAL,
+            bookCopyId,
+            "Test Book",
+            "978-1234567890",
+            arrivalId,
+            null,
+            movement.getMovementDate());
   }
 
   @Test
   void recordArrivalMovement_Success() {
     when(bookCopyRepository.findById(bookCopyId)).thenReturn(Optional.of(bookCopy));
     when(arrivalRepository.findById(arrivalId)).thenReturn(Optional.of(arrival));
-    when(stockMovementMapper.toEntity(anyInt(), eq(MovementType.IN), eq(MovementReason.ARRIVAL),
-        eq(bookCopy), eq(arrival), isNull(), any(Instant.class))).thenReturn(movement);
+    when(stockMovementMapper.toEntity(
+            anyInt(),
+            eq(MovementType.IN),
+            eq(MovementReason.ARRIVAL),
+            eq(bookCopy),
+            eq(arrival),
+            isNull(),
+            any(Instant.class)))
+        .thenReturn(movement);
     when(stockMovementRepository.save(movement)).thenReturn(movement);
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
 
-    StockMovementResponse result = stockMovementService.recordArrivalMovement(bookCopyId, arrivalId);
+    StockMovementResponse result =
+        stockMovementService.recordArrivalMovement(bookCopyId, arrivalId);
     assertThat(result.movementType()).isEqualTo(MovementType.IN);
   }
 
@@ -140,7 +159,8 @@ class StockMovementServiceTest {
   void getByBookCopyId() {
     when(stockMovementRepository.findByBookCopyId(bookCopyId)).thenReturn(List.of(movement));
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
-    List<StockMovementResponse> result = stockMovementService.getAll(bookCopyId, null, null, null, null);
+    List<StockMovementResponse> result =
+        stockMovementService.getAll(bookCopyId, null, null, null, null);
     assertThat(result).hasSize(1);
   }
 
@@ -148,15 +168,18 @@ class StockMovementServiceTest {
   void getByMovementType() {
     when(stockMovementRepository.findByMovementType(MovementType.IN)).thenReturn(List.of(movement));
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
-    List<StockMovementResponse> result = stockMovementService.getAll(null, MovementType.IN, null, null, null);
+    List<StockMovementResponse> result =
+        stockMovementService.getAll(null, MovementType.IN, null, null, null);
     assertThat(result).hasSize(1);
   }
 
   @Test
   void getByReason() {
-    when(stockMovementRepository.findByReason(MovementReason.ARRIVAL)).thenReturn(List.of(movement));
+    when(stockMovementRepository.findByReason(MovementReason.ARRIVAL))
+        .thenReturn(List.of(movement));
     when(stockMovementMapper.toResponse(movement)).thenReturn(response);
-    List<StockMovementResponse> result = stockMovementService.getAll(null, null, MovementReason.ARRIVAL, null, null);
+    List<StockMovementResponse> result =
+        stockMovementService.getAll(null, null, MovementReason.ARRIVAL, null, null);
     assertThat(result).hasSize(1);
   }
 }

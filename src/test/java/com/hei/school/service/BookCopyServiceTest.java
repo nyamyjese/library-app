@@ -56,25 +56,40 @@ class BookCopyServiceTest {
     library.setId(libraryId);
     library.setName("Main Library");
 
-    bookCopy = BookCopy.builder()
-        .id(copyId)
-        .format(BookCopyFormat.PHYSICAL)
-        .isbn("978-1234567890")
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .status(BookCopyStatus.AVAILABLE)
-        .book(book)
-        .library(library)
-        .build();
+    bookCopy =
+        BookCopy.builder()
+            .id(copyId)
+            .format(BookCopyFormat.PHYSICAL)
+            .isbn("978-1234567890")
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .status(BookCopyStatus.AVAILABLE)
+            .book(book)
+            .library(library)
+            .build();
 
-    response = new BookCopyResponse(copyId, bookId, "Test Book", libraryId, "Main Library",
-        BookCopyFormat.PHYSICAL, "978-1234567890", BigDecimal.valueOf(20.00),
-        BookCopyStatus.AVAILABLE);
+    response =
+        new BookCopyResponse(
+            copyId,
+            bookId,
+            "Test Book",
+            libraryId,
+            "Main Library",
+            BookCopyFormat.PHYSICAL,
+            "978-1234567890",
+            BigDecimal.valueOf(20.00),
+            BookCopyStatus.AVAILABLE);
   }
 
   @Test
   void create_Success() {
-    var request = new CreateBookCopyRequest(bookId, libraryId, BookCopyFormat.PHYSICAL,
-        "978-1234567890", BigDecimal.valueOf(20.00), BookCopyStatus.AVAILABLE);
+    var request =
+        new CreateBookCopyRequest(
+            bookId,
+            libraryId,
+            BookCopyFormat.PHYSICAL,
+            "978-1234567890",
+            BigDecimal.valueOf(20.00),
+            BookCopyStatus.AVAILABLE);
     when(bookRepository.findById(bookId)).thenReturn(Optional.of(new Book()));
     when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(new Library()));
     when(bookCopyMapper.toEntity(any(), any(), any())).thenReturn(bookCopy);
@@ -88,12 +103,17 @@ class BookCopyServiceTest {
 
   @Test
   void create_BookNotFound() {
-    var request = new CreateBookCopyRequest(bookId, libraryId, BookCopyFormat.PHYSICAL,
-        "978-1234567890", BigDecimal.valueOf(20.00), BookCopyStatus.AVAILABLE);
+    var request =
+        new CreateBookCopyRequest(
+            bookId,
+            libraryId,
+            BookCopyFormat.PHYSICAL,
+            "978-1234567890",
+            BigDecimal.valueOf(20.00),
+            BookCopyStatus.AVAILABLE);
     when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> bookCopyService.create(request))
-        .isInstanceOf(NotFoundException.class);
+    assertThatThrownBy(() -> bookCopyService.create(request)).isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -110,8 +130,7 @@ class BookCopyServiceTest {
   void getById_NotFound() {
     when(bookCopyRepository.findById(copyId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> bookCopyService.getById(copyId))
-        .isInstanceOf(NotFoundException.class);
+    assertThatThrownBy(() -> bookCopyService.getById(copyId)).isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -136,8 +155,9 @@ class BookCopyServiceTest {
 
   @Test
   void update_Success() {
-    var request = new UpdateBookCopyRequest(BookCopyFormat.DIGITAL,
-        BigDecimal.valueOf(25.00), BookCopyStatus.DAMAGED);
+    var request =
+        new UpdateBookCopyRequest(
+            BookCopyFormat.DIGITAL, BigDecimal.valueOf(25.00), BookCopyStatus.DAMAGED);
     when(bookCopyRepository.findById(copyId)).thenReturn(Optional.of(bookCopy));
     when(bookCopyRepository.save(bookCopy)).thenReturn(bookCopy);
     when(bookCopyMapper.toResponse(bookCopy)).thenReturn(response);
@@ -149,8 +169,9 @@ class BookCopyServiceTest {
 
   @Test
   void update_NotFound() {
-    var request = new UpdateBookCopyRequest(BookCopyFormat.DIGITAL,
-        BigDecimal.valueOf(25.00), BookCopyStatus.DAMAGED);
+    var request =
+        new UpdateBookCopyRequest(
+            BookCopyFormat.DIGITAL, BigDecimal.valueOf(25.00), BookCopyStatus.DAMAGED);
     when(bookCopyRepository.findById(copyId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> bookCopyService.update(copyId, request))
@@ -170,7 +191,6 @@ class BookCopyServiceTest {
   void delete_NotFound() {
     when(bookCopyRepository.findById(copyId)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> bookCopyService.delete(copyId))
-        .isInstanceOf(NotFoundException.class);
+    assertThatThrownBy(() -> bookCopyService.delete(copyId)).isInstanceOf(NotFoundException.class);
   }
 }

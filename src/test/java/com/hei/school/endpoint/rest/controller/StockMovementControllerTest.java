@@ -27,18 +27,28 @@ class StockMovementControllerTest {
   private final UUID movementId = UUID.randomUUID();
   private final UUID bookCopyId = UUID.randomUUID();
   private final StockMovementResponse response =
-      new StockMovementResponse(movementId, 10, MovementType.IN, MovementReason.ARRIVAL,
-          bookCopyId, "Test Book", "978-1234567890", UUID.randomUUID(), null, Instant.now());
+      new StockMovementResponse(
+          movementId,
+          10,
+          MovementType.IN,
+          MovementReason.ARRIVAL,
+          bookCopyId,
+          "Test Book",
+          "978-1234567890",
+          UUID.randomUUID(),
+          null,
+          Instant.now());
 
   @Test
   void recordArrivalMovement() throws Exception {
     var arrivalId = UUID.randomUUID();
-    when(stockMovementService.recordArrivalMovement(bookCopyId, arrivalId))
-        .thenReturn(response);
+    when(stockMovementService.recordArrivalMovement(bookCopyId, arrivalId)).thenReturn(response);
 
-    mockMvc.perform(post("/stock-movements/arrival")
-            .param("bookCopyId", bookCopyId.toString())
-            .param("arrivalId", arrivalId.toString()))
+    mockMvc
+        .perform(
+            post("/stock-movements/arrival")
+                .param("bookCopyId", bookCopyId.toString())
+                .param("arrivalId", arrivalId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(movementId.toString()));
   }
@@ -47,7 +57,8 @@ class StockMovementControllerTest {
   void getAll() throws Exception {
     when(stockMovementService.getAll(null, null, null, null, null)).thenReturn(List.of(response));
 
-    mockMvc.perform(get("/stock-movements"))
+    mockMvc
+        .perform(get("/stock-movements"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -56,7 +67,8 @@ class StockMovementControllerTest {
   void getById() throws Exception {
     when(stockMovementService.getById(movementId)).thenReturn(response);
 
-    mockMvc.perform(get("/stock-movements/{id}", movementId))
+    mockMvc
+        .perform(get("/stock-movements/{id}", movementId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(movementId.toString()));
   }
@@ -66,7 +78,8 @@ class StockMovementControllerTest {
     when(stockMovementService.getAll(bookCopyId, null, null, null, null))
         .thenReturn(List.of(response));
 
-    mockMvc.perform(get("/stock-movements").param("bookCopyId", bookCopyId.toString()))
+    mockMvc
+        .perform(get("/stock-movements").param("bookCopyId", bookCopyId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -76,7 +89,8 @@ class StockMovementControllerTest {
     when(stockMovementService.getAll(null, MovementType.IN, null, null, null))
         .thenReturn(List.of(response));
 
-    mockMvc.perform(get("/stock-movements").param("movementType", "IN"))
+    mockMvc
+        .perform(get("/stock-movements").param("movementType", "IN"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -86,7 +100,8 @@ class StockMovementControllerTest {
     when(stockMovementService.getAll(null, null, MovementReason.ARRIVAL, null, null))
         .thenReturn(List.of(response));
 
-    mockMvc.perform(get("/stock-movements").param("reason", "ARRIVAL"))
+    mockMvc
+        .perform(get("/stock-movements").param("reason", "ARRIVAL"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }

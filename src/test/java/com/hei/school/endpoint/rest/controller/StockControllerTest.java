@@ -31,7 +31,8 @@ class StockControllerTest {
   void getAllBooksStock() throws Exception {
     when(stockService.getAllBooksStock()).thenReturn(List.of(bookStock));
 
-    mockMvc.perform(get("/stock/books"))
+    mockMvc
+        .perform(get("/stock/books"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -40,7 +41,8 @@ class StockControllerTest {
   void getStockByBook() throws Exception {
     when(stockService.getStockByBook(bookId)).thenReturn(bookStock);
 
-    mockMvc.perform(get("/stock/books/{bookId}", bookId))
+    mockMvc
+        .perform(get("/stock/books/{bookId}", bookId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.bookId").value(bookId.toString()));
   }
@@ -51,7 +53,8 @@ class StockControllerTest {
     var response = new BookCopyStockResponse(UUID.randomUUID(), "Test Book", isbn, 2, 0, 1, 0);
     when(stockService.getStockByIsbn(isbn)).thenReturn(response);
 
-    mockMvc.perform(get("/stock/editions/{isbn}", isbn))
+    mockMvc
+        .perform(get("/stock/editions/{isbn}", isbn))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.isbn").value(isbn));
   }
@@ -61,7 +64,8 @@ class StockControllerTest {
     var lowStock = new LowStockResponse(bookId, "Test Book", 2);
     when(stockService.getLowStockBooks(3)).thenReturn(List.of(lowStock));
 
-    mockMvc.perform(get("/stock/low").param("threshold", "3"))
+    mockMvc
+        .perform(get("/stock/low").param("threshold", "3"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }
@@ -71,7 +75,8 @@ class StockControllerTest {
     var lowStock = new LowStockResponse(bookId, "Test Book", 2);
     when(stockService.getLowStockBooks(3)).thenReturn(List.of(lowStock));
 
-    mockMvc.perform(get("/stock/low"))
+    mockMvc
+        .perform(get("/stock/low"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1));
   }

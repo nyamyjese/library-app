@@ -26,8 +26,9 @@ class StockMovementMapperTest {
     saleItem.setId(UUID.randomUUID());
     Instant now = Instant.now();
 
-    StockMovement sm = mapper.toEntity(10, MovementType.IN, MovementReason.ARRIVAL,
-        bookCopy, arrival, saleItem, now);
+    StockMovement sm =
+        mapper.toEntity(
+            10, MovementType.IN, MovementReason.ARRIVAL, bookCopy, arrival, saleItem, now);
 
     assertThat(sm.getQuantity()).isEqualTo(10);
     assertThat(sm.getMovementType()).isEqualTo(MovementType.IN);
@@ -50,14 +51,15 @@ class StockMovementMapperTest {
     book.setId(bookId);
     book.setTitle("Test Book");
 
-    BookCopy bookCopy = BookCopy.builder()
-        .id(bookCopyId)
-        .book(book)
-        .isbn("978-1234567890")
-        .status(BookCopyStatus.AVAILABLE)
-        .format(BookCopyFormat.PHYSICAL)
-        .sellingPrice(BigDecimal.valueOf(20.00))
-        .build();
+    BookCopy bookCopy =
+        BookCopy.builder()
+            .id(bookCopyId)
+            .book(book)
+            .isbn("978-1234567890")
+            .status(BookCopyStatus.AVAILABLE)
+            .format(BookCopyFormat.PHYSICAL)
+            .sellingPrice(BigDecimal.valueOf(20.00))
+            .build();
 
     Arrival arrival = new Arrival();
     arrival.setId(arrivalId);
@@ -93,10 +95,7 @@ class StockMovementMapperTest {
     sm.setQuantity(1);
     sm.setMovementType(MovementType.IN);
     sm.setReason(MovementReason.ARRIVAL);
-    sm.setBookCopy(BookCopy.builder()
-        .id(UUID.randomUUID())
-        .book(new Book())
-        .build());
+    sm.setBookCopy(BookCopy.builder().id(UUID.randomUUID()).book(new Book()).build());
     sm.setMovementDate(Instant.now());
 
     StockMovementResponse response = mapper.toResponse(sm);

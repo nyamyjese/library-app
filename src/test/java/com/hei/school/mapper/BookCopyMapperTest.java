@@ -3,7 +3,6 @@ package com.hei.school.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hei.school.dto.request.CreateBookCopyRequest;
-import com.hei.school.dto.response.BookCopyResponse;
 import com.hei.school.entity.Book;
 import com.hei.school.entity.BookCopy;
 import com.hei.school.entity.Library;

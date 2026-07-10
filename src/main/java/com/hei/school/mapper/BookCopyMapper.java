@@ -37,10 +37,10 @@ public class BookCopyMapper {
   public BookCopyResponse toResponse(BookCopy bookCopy) {
     return new BookCopyResponse(
         bookCopy.getId(),
-        bookCopy.getBook().getId(),
-        bookCopy.getBook().getTitle(),
-        bookCopy.getLibrary().getId(),
-        bookCopy.getLibrary().getName(),
+        bookCopy.getBook() != null ? bookCopy.getBook().getId() : null,
+        bookCopy.getBook() != null ? bookCopy.getBook().getTitle() : null,
+        bookCopy.getLibrary() != null ? bookCopy.getLibrary().getId() : null,
+        bookCopy.getLibrary() != null ? bookCopy.getLibrary().getName() : null,
         bookCopy.getFormat(),
         bookCopy.getIsbn(),
         bookCopy.getSellingPrice(),

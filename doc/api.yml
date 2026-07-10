@@ -1,13 +1,17 @@
 openapi: 3.0.3
+
 info:
   title: Library App API
-  description: Simple API to manage libraries, books, book copies, arrivals, sales, stock, and customers.
+  description: Simple API to manage libraries, books, authors, genres, book copies, arrivals, sales, stock movements, and customers.
   version: 1.0.0
+
 servers:
   - url: http://localhost:8080
     description: Local server
 
 tags:
+  - name: Health
+    description: Check the API
   - name: Library
     description: Manage libraries
   - name: Book
@@ -26,10 +30,9 @@ tags:
     description: Manage sales
   - name: StockMovement
     description: Read stock movements
-  - name: Health
-    description: Check the API
 
 paths:
+
   /ping:
     get:
       tags: [Health]
@@ -54,6 +57,7 @@ paths:
           schema:
             type: string
             format: email
+            example: user@example.com
       responses:
         '200':
           description: Email was sent
@@ -74,7 +78,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LibraryRequest'
+              $ref: '#/components/schemas/CreateLibraryRequest'
       responses:
         '201':
           description: Library created
@@ -86,6 +90,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Library]
       summary: List all libraries
@@ -104,6 +109,7 @@ paths:
   /libraries/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Library]
       summary: Get a library by id
@@ -118,6 +124,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Library]
       summary: Update a library
@@ -126,7 +133,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LibraryRequest'
+              $ref: '#/components/schemas/UpdateLibraryRequest'
       responses:
         '200':
           description: Library updated
@@ -140,6 +147,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Library]
       summary: Delete a library
@@ -148,29 +156,6 @@ paths:
           description: Library deleted
         '404':
           $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /libraries/search:
-    get:
-      tags: [Library]
-      summary: Search libraries by name
-      parameters:
-        - name: name
-          in: query
-          required: true
-          schema:
-            type: string
-            example: Central Library
-      responses:
-        '200':
-          description: Matching libraries
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LibraryResponse'
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -183,7 +168,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorCreateRequest'
+              $ref: '#/components/schemas/CreateAuthorRequest'
       responses:
         '201':
           description: Author created
@@ -195,6 +180,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Author]
       summary: List all authors
@@ -213,6 +199,7 @@ paths:
   /authors/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Author]
       summary: Get an author by id
@@ -227,6 +214,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Author]
       summary: Update an author
@@ -235,7 +223,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorUpdateRequest'
+              $ref: '#/components/schemas/UpdateAuthorRequest'
       responses:
         '200':
           description: Author updated
@@ -249,6 +237,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Author]
       summary: Delete an author
@@ -257,29 +246,6 @@ paths:
           description: Author deleted
         '404':
           $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /authors/search:
-    get:
-      tags: [Author]
-      summary: Search authors by last name
-      parameters:
-        - name: lastName
-          in: query
-          required: true
-          schema:
-            type: string
-            example: Martin
-      responses:
-        '200':
-          description: Matching authors
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AuthorResponse'
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -297,34 +263,41 @@ paths:
         schema:
           type: string
           format: uuid
+
     post:
       tags: [Author]
       summary: Add an author to a book
       responses:
         '204':
           description: Author added to book
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Author]
       summary: Remove an author from a book
       responses:
         '204':
           description: Author removed from book
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
 
   /authors/{authorId}/books:
+    parameters:
+      - name: authorId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
     get:
       tags: [Author]
       summary: List book ids by author
-      parameters:
-        - name: authorId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: List of book ids
@@ -335,20 +308,23 @@ paths:
                 items:
                   type: string
                   format: uuid
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
 
   /authors/books/{bookId}/authors:
+    parameters:
+      - name: bookId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
     get:
       tags: [Author]
       summary: List authors of a book
-      parameters:
-        - name: bookId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: List of authors
@@ -358,6 +334,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AuthorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
 
@@ -370,7 +348,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GenreCreateRequest'
+              $ref: '#/components/schemas/CreateGenreRequest'
       responses:
         '201':
           description: Genre created
@@ -382,6 +360,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Genre]
       summary: List or search genres
@@ -389,7 +368,7 @@ paths:
         - name: name
           in: query
           required: false
-          description: Search genres by name
+          description: Search genres by name (case-insensitive, partial match)
           schema:
             type: string
             example: Fantasy
@@ -408,6 +387,7 @@ paths:
   /genres/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Genre]
       summary: Get a genre by id
@@ -422,6 +402,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Genre]
       summary: Update a genre
@@ -430,7 +411,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GenreUpdateRequest'
+              $ref: '#/components/schemas/UpdateGenreRequest'
       responses:
         '200':
           description: Genre updated
@@ -444,6 +425,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Genre]
       summary: Delete a genre
@@ -463,10 +445,11 @@ paths:
         schema:
           type: string
           format: uuid
+
     get:
       tags: [Genre]
       summary: Get revenue for a genre
-      description: Calculate revenue from sold books that contain the selected genre.
+      description: Calculate revenue from sold books that contain the selected genre
       responses:
         '200':
           description: Genre revenue
@@ -493,6 +476,7 @@ paths:
         schema:
           type: string
           format: uuid
+
     post:
       tags: [Genre]
       summary: Add a genre to a book
@@ -505,6 +489,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Genre]
       summary: Remove a genre from a book
@@ -517,16 +502,17 @@ paths:
           $ref: '#/components/responses/InternalError'
 
   /genres/books/{bookId}/genres:
+    parameters:
+      - name: bookId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
     get:
       tags: [Genre]
       summary: List genres of a book
-      parameters:
-        - name: bookId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: List of genres
@@ -542,16 +528,12 @@ paths:
           $ref: '#/components/responses/InternalError'
 
   /genres/{genreId}/books:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Genre]
       summary: List book ids by genre
-      parameters:
-        - name: genreId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: List of book ids
@@ -576,7 +558,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookRequest'
+              $ref: '#/components/schemas/CreateBookRequest'
       responses:
         '201':
           description: Book created
@@ -590,6 +572,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Book]
       summary: List all books
@@ -608,6 +591,7 @@ paths:
   /books/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Book]
       summary: Get a book by id
@@ -622,6 +606,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Book]
       summary: Update a book
@@ -630,7 +615,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookRequest'
+              $ref: '#/components/schemas/UpdateBookRequest'
       responses:
         '200':
           description: Book updated
@@ -644,6 +629,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Book]
       summary: Delete a book
@@ -655,139 +641,73 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /books/search/title:
-    get:
-      tags: [Book]
-      summary: Search books by title
-      parameters:
-        - name: title
-          in: query
-          required: true
-          schema:
-            type: string
-            example: Clean Code
-      responses:
-        '200':
-          description: Matching books
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
+  /books/{id}/authors:
+    parameters:
+      - $ref: '#/components/parameters/Id'
 
-  /books/search/isbn:
-    get:
+    put:
       tags: [Book]
-      summary: Search a book by ISBN
-      parameters:
-        - name: isbn
-          in: query
-          required: true
-          schema:
-            type: string
-            example: "9780132350884"
+      summary: Set authors of a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignAuthorsRequest'
       responses:
         '200':
-          description: Book found
+          description: Authors set
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /books/library/{libraryId}:
-    get:
-      tags: [Book]
-      summary: List books by library
-      parameters:
-        - name: libraryId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: List of books
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
+  /books/{id}/genres:
+    parameters:
+      - $ref: '#/components/parameters/Id'
 
-  /books/filter/year:
-    get:
+    put:
       tags: [Book]
-      summary: Filter books by publication year
-      parameters:
-        - name: year
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 2008
+      summary: Set genres of a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignGenresRequest'
       responses:
         '200':
-          description: List of books
+          description: Genres set
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /books/sort/title:
-    get:
-      tags: [Book]
-      summary: List books sorted by title
-      responses:
-        '200':
-          description: Books sorted by title
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /books/sort/price:
-    get:
-      tags: [Book]
-      summary: List books sorted by price
-      responses:
-        '200':
-          description: Books sorted by price
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookResponse'
+                $ref: '#/components/schemas/BookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
 
   /books/{bookId}/stock:
+    parameters:
+      - name: bookId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
     get:
       tags: [Book]
-      summary: Get total stock of a book
-      parameters:
-        - name: bookId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      summary: Get total stock of a book across all editions
+      description: Returns the total stock quantity for a specific book (all copies combined)
       responses:
         '200':
           description: Total stock of the book
@@ -823,6 +743,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [BookCopy]
       summary: List book copies
@@ -859,6 +780,7 @@ paths:
   /book-copies/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [BookCopy]
       summary: Get a book copy by id
@@ -873,6 +795,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [BookCopy]
       summary: Update a book copy
@@ -895,6 +818,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [BookCopy]
       summary: Delete a book copy
@@ -914,6 +838,7 @@ paths:
         schema:
           type: string
           format: uuid
+
     get:
       tags: [BookCopy]
       summary: Get current stock of a book copy
@@ -932,7 +857,7 @@ paths:
   /book-copies/low-stock:
     get:
       tags: [BookCopy]
-      summary: Get low stock book copies
+      summary: Get book copies with low stock
       parameters:
         - name: threshold
           in: query
@@ -940,9 +865,10 @@ paths:
           schema:
             type: integer
             default: 3
+            example: 5
       responses:
         '200':
-          description: List of low stock book copies
+          description: List of book copies with low stock
           content:
             application/json:
               schema:
@@ -952,78 +878,11 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
-  /book-copies/available:
-    get:
-      tags: [BookCopy]
-      summary: List available book copies
-      parameters:
-        - name: bookId
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Available book copies
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookCopyResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /book-copies/count/available:
-    get:
-      tags: [BookCopy]
-      summary: Count available book copies by book
-      parameters:
-        - name: bookId
-          in: query
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Number of available copies
-          content:
-            application/json:
-              schema:
-                type: integer
-                format: int64
-                example: 4
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /book-copies/{id}/status:
-    patch:
-      tags: [BookCopy]
-      summary: Update a book copy status
-      parameters:
-        - $ref: '#/components/parameters/Id'
-        - name: status
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/BookCopyStatus'
-      responses:
-        '200':
-          description: Book copy status updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BookCopyResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
   /arrivals:
     post:
       tags: [Arrival]
       summary: Create an arrival
-      description: This adds stock automatically.
+      description: This adds stock automatically and creates a stock movement
       requestBody:
         required: true
         content:
@@ -1043,17 +902,12 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Arrival]
       summary: List arrivals
       parameters:
         - name: bookCopyId
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-        - name: bookId
           in: query
           required: false
           schema:
@@ -1086,6 +940,7 @@ paths:
   /arrivals/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Arrival]
       summary: Get an arrival by id
@@ -1100,6 +955,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Arrival]
       summary: Update an arrival
@@ -1122,6 +978,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Arrival]
       summary: Delete an arrival
@@ -1154,6 +1011,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Customer]
       summary: List all customers
@@ -1172,6 +1030,7 @@ paths:
   /customers/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Customer]
       summary: Get a customer by id
@@ -1186,6 +1045,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Customer]
       summary: Update a customer
@@ -1208,6 +1068,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Customer]
       summary: Delete a customer
@@ -1223,7 +1084,7 @@ paths:
     post:
       tags: [Sale]
       summary: Create a sale
-      description: This removes stock automatically.
+      description: This removes stock automatically and creates stock movements
       requestBody:
         required: true
         content:
@@ -1243,6 +1104,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     get:
       tags: [Sale]
       summary: List sales
@@ -1286,6 +1148,7 @@ paths:
   /sales/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [Sale]
       summary: Get a sale by id
@@ -1300,6 +1163,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [Sale]
       summary: Update a sale
@@ -1322,6 +1186,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     delete:
       tags: [Sale]
       summary: Delete a sale
@@ -1381,6 +1246,7 @@ paths:
   /stock-movements/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+
     get:
       tags: [StockMovement]
       summary: Get a stock movement by id
@@ -1395,12 +1261,14 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+
     put:
       tags: [StockMovement]
       summary: Updating a stock movement is not allowed
       responses:
         '403':
           $ref: '#/components/responses/Forbidden'
+
     delete:
       tags: [StockMovement]
       summary: Deleting a stock movement is not allowed
@@ -1409,6 +1277,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
 
 components:
+
   parameters:
     Id:
       name: id
@@ -1425,24 +1294,28 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ExceptionBody'
+
     NotFound:
       description: Resource not found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ExceptionBody'
+
     Conflict:
       description: Resource conflict
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ExceptionBody'
+
     Forbidden:
       description: Action not allowed
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ExceptionBody'
+
     InternalError:
       description: Internal server error
       content:
@@ -1451,6 +1324,7 @@ components:
             $ref: '#/components/schemas/ExceptionBody'
 
   schemas:
+
     ExceptionBody:
       type: object
       properties:
@@ -1478,7 +1352,6 @@ components:
         - ILLUSTRATED
         - COLLECTOR
         - DIGITAL
-        - PHYSICAL
 
     BookCopyStatus:
       type: string
@@ -1489,7 +1362,6 @@ components:
         - RESERVED
         - DAMAGED
         - LOST
-        - RESOLVED
 
     MovementType:
       type: string
@@ -1512,17 +1384,33 @@ components:
         - M
         - F
 
-    LibraryRequest:
+    CreateLibraryRequest:
       type: object
       required:
         - name
+        - address
+        - phone
       properties:
-        id:
-          type: string
-          format: uuid
         name:
           type: string
           example: Central Library
+        address:
+          type: string
+          example: Analakely, Antananarivo
+        phone:
+          type: string
+          example: "0341234567"
+
+    UpdateLibraryRequest:
+      type: object
+      required:
+        - name
+        - address
+        - phone
+      properties:
+        name:
+          type: string
+          example: Central Library Updated
         address:
           type: string
           example: Analakely, Antananarivo
@@ -1543,7 +1431,7 @@ components:
         phone:
           type: string
 
-    AuthorCreateRequest:
+    CreateAuthorRequest:
       type: object
       required:
         - firstName
@@ -1559,7 +1447,7 @@ components:
         sexe:
           $ref: '#/components/schemas/Sexe'
 
-    AuthorUpdateRequest:
+    UpdateAuthorRequest:
       type: object
       required:
         - firstName
@@ -1585,7 +1473,7 @@ components:
         sexe:
           $ref: '#/components/schemas/Sexe'
 
-    GenreCreateRequest:
+    CreateGenreRequest:
       type: object
       required:
         - name
@@ -1594,7 +1482,7 @@ components:
           type: string
           example: Fantasy
 
-    GenreUpdateRequest:
+    UpdateGenreRequest:
       type: object
       required:
         - name
@@ -1624,34 +1512,81 @@ components:
         revenue:
           type: number
           format: decimal
-          example: 515000
+          example: 515000.00
 
-    BookRequest:
+    CreateBookRequest:
       type: object
       required:
         - title
-        - price
+        - isbn
+        - publicationYear
+        - basePrice
         - libraryId
       properties:
-        id:
-          type: string
-          format: uuid
         title:
           type: string
           example: Clean Code
         isbn:
           type: string
+          minLength: 13
+          maxLength: 13
           example: "9780132350884"
         publicationYear:
           type: integer
           example: 2008
-        price:
+        basePrice:
           type: number
           format: decimal
           example: 45000
         libraryId:
           type: string
           format: uuid
+
+    UpdateBookRequest:
+      type: object
+      required:
+        - title
+        - isbn
+        - publicationYear
+        - basePrice
+      properties:
+        title:
+          type: string
+          example: Clean Code Updated
+        isbn:
+          type: string
+          minLength: 13
+          maxLength: 13
+          example: "9780132350884"
+        publicationYear:
+          type: integer
+          example: 2008
+        basePrice:
+          type: number
+          format: decimal
+          example: 45000
+
+    AssignAuthorsRequest:
+      type: object
+      required:
+        - authorIds
+      properties:
+        authorIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    AssignGenresRequest:
+      type: object
+      required:
+        - genreIds
+      properties:
+        genreIds:
+          type: array
+          items:
+            type: string
+            format: uuid
 
     BookResponse:
       type: object
@@ -1665,12 +1600,20 @@ components:
           type: string
         publicationYear:
           type: integer
-        price:
+        basePrice:
           type: number
           format: decimal
         libraryId:
           type: string
           format: uuid
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorResponse'
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/GenreResponse'
 
     BookTotalStockResponse:
       type: object
@@ -1680,9 +1623,10 @@ components:
           format: uuid
         bookTitle:
           type: string
+          example: Clean Code
         totalStock:
           type: integer
-          example: 42
+          example: 47
 
     CreateBookCopyRequest:
       type: object
@@ -1814,7 +1758,6 @@ components:
         unitPrice:
           type: number
           format: decimal
-          exclusiveMinimum: true
           minimum: 0
           example: 40000
         arrivalDate:
@@ -1836,7 +1779,6 @@ components:
         unitPrice:
           type: number
           format: decimal
-          exclusiveMinimum: true
           minimum: 0
           example: 42000
         arrivalDate:
@@ -1925,7 +1867,6 @@ components:
           type: string
         email:
           type: string
-          format: email
         phone:
           type: string
         createdAt:
@@ -1952,7 +1893,6 @@ components:
         unitPrice:
           type: number
           format: decimal
-          exclusiveMinimum: true
           minimum: 0
           example: 55000
 

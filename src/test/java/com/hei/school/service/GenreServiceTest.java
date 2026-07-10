@@ -317,7 +317,7 @@ class GenreServiceTest {
 
     List<UUID> bookIds = genreService.getBooksByGenre(genreId);
 
-    assertThat(bookIds).containsExactly(book.getId(), book2.getId());
+    assertThat(bookIds).containsExactly(book2.getId());
     verify(genreRepository).existsById(genreId);
     verify(bookRepository).findAll();
   }

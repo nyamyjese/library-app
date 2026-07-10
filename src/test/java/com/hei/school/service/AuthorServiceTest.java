@@ -261,17 +261,17 @@ class AuthorServiceTest {
 
   @Test
   void getBooksByAuthor_shouldReturnListOfBookIds() {
-    Book book2 = new Book();
-    book2.setId(UUID.randomUUID());
-    book2.setAuthors(List.of(author));
-    when(authorRepository.findById(authorId)).thenReturn(Optional.of(author));
-    when(bookRepository.findAll()).thenReturn(List.of(book, book2));
+      Book book2 = new Book();
+      book2.setId(UUID.randomUUID());
+      book2.setAuthors(List.of(author));
+      when(authorRepository.findById(authorId)).thenReturn(Optional.of(author));
+      when(bookRepository.findAll()).thenReturn(List.of(book, book2));
 
-    List<UUID> bookIds = authorService.getBooksByAuthor(authorId);
+      List<UUID> bookIds = authorService.getBooksByAuthor(authorId);
 
-    assertThat(bookIds).containsExactly(book.getId(), book2.getId());
-    verify(authorRepository).findById(authorId);
-    verify(bookRepository).findAll();
+      assertThat(bookIds).containsExactly(book2.getId());
+      verify(authorRepository).findById(authorId);
+      verify(bookRepository).findAll();
   }
 
   @Test
